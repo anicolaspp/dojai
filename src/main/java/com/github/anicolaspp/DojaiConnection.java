@@ -47,6 +47,9 @@ public class DojaiConnection implements Connection {
     
     @Override
     public String nativeSQL(String sql) throws SQLException {
+        
+        //returns OJAI QUERY DOCUMENT
+        
         return null;
     }
     
