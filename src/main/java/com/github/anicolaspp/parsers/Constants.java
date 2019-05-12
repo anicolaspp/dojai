@@ -1,4 +1,4 @@
-package com.github.anicolaspp.test;
+package com.github.anicolaspp.parsers;
 
 public class Constants {
     

@@ -12,7 +12,7 @@ public interface ChainParser extends OjaiParser {
     default Query parse(Statement statement) {
         val query = getQueryFrom(statement);
         
-        if (query.isEmpty()) {
+        if (query.asJsonString().equals(Constants.EMPTY_QUERY)) {
             return next().parse(statement);
         } else {
             return query;

@@ -1,6 +1,7 @@
 package com.github.anicolaspp.test;
 
 import com.github.anicolaspp.ojai.JavaOjaiTesting;
+import com.github.anicolaspp.parsers.Constants;
 import com.github.anicolaspp.parsers.OjaiParser;
 import lombok.val;
 import org.junit.Test;
