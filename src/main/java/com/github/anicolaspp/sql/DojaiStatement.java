@@ -2,7 +2,6 @@ package com.github.anicolaspp.sql;
 
 import com.github.anicolaspp.parsers.ChainParser;
 import lombok.val;
-import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 
 import java.sql.Connection;
@@ -35,7 +34,7 @@ public class DojaiStatement implements Statement {
             
             
             
-        } catch (JSQLParserException e) {
+        } catch (Exception e) {
             throw new SQLException("Error parsing SQL query", e);
         }
         

@@ -7,7 +7,6 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import org.ojai.store.Connection;
-import org.ojai.store.Query;
 
 public class SelectStatementParser implements ChainParser {
     
@@ -24,18 +23,24 @@ public class SelectStatementParser implements ChainParser {
     }
     
     @Override
-    public Query getQueryFrom(Statement statement) {
+    public ParserQueryResult getQueryFrom(Statement statement) {
         
         //TODO: try parsing a select. If it fails, calls next.getQueryFrom
         
         if (!(statement instanceof Select)) {
-            return emptyQuery(connection);
+            return  ParserQueryResult
+                    .builder()
+                    .query(emptyQuery(connection))
+                    .build();
         }
         
         val select = (Select) statement;
         
         if (!(select.getSelectBody() instanceof PlainSelect)) {
-            return emptyQuery(connection);
+            return ParserQueryResult
+                    .builder()
+                    .query(emptyQuery(connection))
+                    .build();
         }
         
         val plainSelectBody = (PlainSelect) select.getSelectBody();
@@ -51,6 +56,15 @@ public class SelectStatementParser implements ChainParser {
             }
         });
         
-        return query.build();
+        String table = "";   //TODO: find table name and aliases
+        
+        
+        return ParserQueryResult
+                .builder()
+                .type(ParserType.SELECT)
+                .query(query)
+                .table(table)
+                .successful(true)
+                .build();
     }
 }

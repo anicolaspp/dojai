@@ -2,7 +2,6 @@ package com.github.anicolaspp.parsers;
 
 import net.sf.jsqlparser.statement.Statement;
 import org.ojai.store.Connection;
-import org.ojai.store.Query;
 
 public class UnsupportedStatementParser implements ChainParser {
     
@@ -19,7 +18,11 @@ public class UnsupportedStatementParser implements ChainParser {
     }
     
     @Override
-    public Query getQueryFrom(Statement statement) {
-        return connection.newQuery().build();
+    public ParserQueryResult getQueryFrom(Statement statement) {
+        
+        return ParserQueryResult
+                .builder()
+                .type(ParserType.UNKNOWN)
+                .build();
     }
 }
