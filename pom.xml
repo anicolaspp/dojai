@@ -8,6 +8,29 @@
   <artifactId>dojai</artifactId>
   <version>1.0.0-SNAPSHOT</version>
 
+
+  <repositories>
+    <repository>
+      <id>mapr-maven</id>
+      <url>http://repository.mapr.com/maven</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+
+    <repository>
+      <id>jsqlparser-snapshots</id>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <url>https://oss.sonatype.org/content/groups/public/</url>
+    </repository>
+  </repositories>
+
+
   <dependencies>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -15,6 +38,37 @@
       <version>1.18.8</version>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>com.github.jsqlparser</groupId>
+      <artifactId>jsqlparser</artifactId>
+      <version>1.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.db</groupId>
+      <artifactId>maprdb</artifactId>
+      <version>6.1.0-mapr</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.db</groupId>
+      <artifactId>maprdb-java</artifactId>
+      <version>6.1.0-mapr</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.mapr.ojai</groupId>
+      <artifactId>mapr-ojai-driver</artifactId>
+      <version>6.1.0-mapr</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.ojai</groupId>
+      <artifactId>ojai</artifactId>
+      <version>3.0-mapr-1808</version>
+    </dependency>
+    
   </dependencies>
 
 
