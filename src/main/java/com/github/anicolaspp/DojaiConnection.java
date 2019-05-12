@@ -32,7 +32,7 @@ public class DojaiConnection implements Connection {
     
     @Override
     public Statement createStatement() throws SQLException {
-        return null;
+        return new DojaiStatement(url, info);
     }
     
     @Override
@@ -127,6 +127,9 @@ public class DojaiConnection implements Connection {
     
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
+    
+       
+        
         return null;
     }
     

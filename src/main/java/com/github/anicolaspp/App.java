@@ -14,6 +14,10 @@ public class App {
         val connection = DriverManager.getConnection("dojai:mapr:");
     
         System.out.println(connection.getClass().toString());
+        
+        val statement = connection.createStatement();
+    
+        System.out.println(statement);
     }
 }
 
