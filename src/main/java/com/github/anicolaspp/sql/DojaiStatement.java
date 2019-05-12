@@ -1,28 +1,17 @@
-package com.github.anicolaspp;
+package com.github.anicolaspp.sql;
 
-import java.io.InputStream;
-import java.io.Reader;
-import java.math.BigDecimal;
-import java.net.URL;
-import java.sql.Array;
-import java.sql.Blob;
-import java.sql.Clob;
+import com.github.anicolaspp.parsers.ChainParser;
+import lombok.val;
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+
 import java.sql.Connection;
-import java.sql.Date;
-import java.sql.NClob;
-import java.sql.Ref;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.RowId;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-import java.sql.SQLXML;
 import java.sql.Statement;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.Map;
 import java.util.Properties;
+
 
 public class DojaiStatement implements Statement {
     
@@ -36,6 +25,21 @@ public class DojaiStatement implements Statement {
     
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
+        
+        try {
+            val statement = CCJSqlParserUtil.parse(sql);
+    
+            org.ojai.store.Connection ojaiConnection = null;
+            
+            val query = ChainParser.build(ojaiConnection).getQueryFrom(statement);
+            
+            
+            
+        } catch (JSQLParserException e) {
+            throw new SQLException("Error parsing SQL query", e);
+        }
+        
+        
         return null;
     }
     
@@ -46,7 +50,7 @@ public class DojaiStatement implements Statement {
     
     @Override
     public void close() throws SQLException {
-    
+        
     }
     
     @Override
@@ -56,7 +60,7 @@ public class DojaiStatement implements Statement {
     
     @Override
     public void setMaxFieldSize(int max) throws SQLException {
-    
+        
     }
     
     @Override
@@ -66,12 +70,12 @@ public class DojaiStatement implements Statement {
     
     @Override
     public void setMaxRows(int max) throws SQLException {
-    
+        
     }
     
     @Override
     public void setEscapeProcessing(boolean enable) throws SQLException {
-    
+        
     }
     
     @Override
@@ -81,12 +85,12 @@ public class DojaiStatement implements Statement {
     
     @Override
     public void setQueryTimeout(int seconds) throws SQLException {
-    
+        
     }
     
     @Override
     public void cancel() throws SQLException {
-    
+        
     }
     
     @Override
@@ -96,12 +100,12 @@ public class DojaiStatement implements Statement {
     
     @Override
     public void clearWarnings() throws SQLException {
-    
+        
     }
     
     @Override
     public void setCursorName(String name) throws SQLException {
-    
+        
     }
     
     @Override
@@ -126,7 +130,7 @@ public class DojaiStatement implements Statement {
     
     @Override
     public void setFetchDirection(int direction) throws SQLException {
-    
+        
     }
     
     @Override
@@ -136,7 +140,7 @@ public class DojaiStatement implements Statement {
     
     @Override
     public void setFetchSize(int rows) throws SQLException {
-    
+        
     }
     
     @Override
@@ -156,12 +160,12 @@ public class DojaiStatement implements Statement {
     
     @Override
     public void addBatch(String sql) throws SQLException {
-    
+        
     }
     
     @Override
     public void clearBatch() throws SQLException {
-    
+        
     }
     
     @Override
@@ -226,7 +230,7 @@ public class DojaiStatement implements Statement {
     
     @Override
     public void setPoolable(boolean poolable) throws SQLException {
-    
+        
     }
     
     @Override
@@ -236,7 +240,7 @@ public class DojaiStatement implements Statement {
     
     @Override
     public void closeOnCompletion() throws SQLException {
-    
+        
     }
     
     @Override

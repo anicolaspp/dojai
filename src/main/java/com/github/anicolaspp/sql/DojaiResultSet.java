@@ -1,4 +1,4 @@
-package com.github.anicolaspp;
+package com.github.anicolaspp.sql;
 
 import java.io.InputStream;
 import java.io.Reader;

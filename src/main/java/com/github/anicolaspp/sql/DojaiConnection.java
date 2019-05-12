@@ -1,4 +1,4 @@
-package com.github.anicolaspp;
+package com.github.anicolaspp.sql;
 
 import java.sql.Array;
 import java.sql.Blob;
