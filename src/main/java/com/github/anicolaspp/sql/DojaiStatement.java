@@ -31,7 +31,7 @@ public class DojaiStatement implements Statement {
     
             org.ojai.store.Connection ojaiConnection = null;
             
-            val query = ChainParser.build(ojaiConnection).getQueryFrom(statement);
+            val query = ChainParser.build(ojaiConnection).parse(statement);
             
             
             

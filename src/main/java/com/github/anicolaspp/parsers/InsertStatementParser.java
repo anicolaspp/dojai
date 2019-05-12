@@ -14,12 +14,12 @@ public class InsertStatementParser implements ChainParser {
     }
     
     @Override
-    public OjaiParser next() {
+    public ChainParser next() {
         return new UnsupportedStatementParser(connection);
     }
     
     @Override
     public Query getQueryFrom(Statement statement) {
-        return next().getQueryFrom(statement);
+        return connection.newQuery().build();
     }
 }

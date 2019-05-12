@@ -14,7 +14,7 @@ public class SelectStatementParser implements ChainParser {
     }
     
     @Override
-    public OjaiParser next() {
+    public ChainParser next() {
         return new InsertStatementParser(connection);
     }
     
@@ -25,6 +25,6 @@ public class SelectStatementParser implements ChainParser {
         
         
         
-        return next().getQueryFrom(statement);
+        return emptyQuery(connection);
     }
 }

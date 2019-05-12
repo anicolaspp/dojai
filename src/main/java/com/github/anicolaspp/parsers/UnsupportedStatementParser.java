@@ -14,7 +14,7 @@ public class UnsupportedStatementParser implements ChainParser {
     }
     
     @Override
-    public OjaiParser next() {
+    public ChainParser next() {
         return null;
     }
     
