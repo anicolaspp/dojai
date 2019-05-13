@@ -307,22 +307,34 @@ public class DojaiResultSet implements ResultSet {
     
     @Override
     public Date getDate(String columnLabel) throws SQLException {
-        return null;
+        checkColumn(columnLabel);
+        checkReadNull(columnLabel);
+        
+        return Date.valueOf(current.getDate(columnLabel).toDateStr());
     }
     
     @Override
     public Time getTime(String columnLabel) throws SQLException {
-        return null;
+        checkColumn(columnLabel);
+        checkReadNull(columnLabel);
+        
+        return Time.valueOf(current.getTime(columnLabel).toTimeStr());
     }
     
     @Override
     public Timestamp getTimestamp(String columnLabel) throws SQLException {
-        return null;
+        checkColumn(columnLabel);
+        checkReadNull(columnLabel);
+        
+        return Timestamp.valueOf(current.getTimestamp(columnLabel).toString());
     }
     
     @Override
     public InputStream getAsciiStream(String columnLabel) throws SQLException {
-        return null;
+        checkColumn(columnLabel);
+        checkReadNull(columnLabel);
+        
+        return getBinaryStream(columnLabel);
     }
     
     @Override
@@ -332,7 +344,15 @@ public class DojaiResultSet implements ResultSet {
     
     @Override
     public InputStream getBinaryStream(String columnLabel) throws SQLException {
-        return null;
+        checkColumn(columnLabel);
+        checkReadNull(columnLabel);
+        
+        
+        try {
+            return new ByteArrayInputStream(current.getBinary(columnLabel).array());
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
     }
     
     @Override
@@ -357,17 +377,25 @@ public class DojaiResultSet implements ResultSet {
     
     @Override
     public Object getObject(int columnIndex) throws SQLException {
-        return null;
+        checkIndex(columnIndex);
+        checkReadNull(columnIndex);
+        
+        return current.getValue(schema.get(columnIndex));
     }
     
     @Override
     public Object getObject(String columnLabel) throws SQLException {
-        return null;
+        checkColumn(columnLabel);
+        checkReadNull(columnLabel);
+        
+        return current.getValue(columnLabel);
     }
     
     @Override
     public int findColumn(String columnLabel) throws SQLException {
-        return 0;
+        checkColumn(columnLabel);
+        
+        return schema.indexOf(columnLabel);
     }
     
     @Override
