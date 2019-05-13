@@ -1,7 +1,9 @@
 package com.github.anicolaspp.sql;
 
 import org.ojai.Document;
+import org.ojai.DocumentStream;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -23,25 +25,34 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class DojaiResultSet implements ResultSet {
     
+    private Document current;
     
     private Iterator<Document> documentStream;
+    private List<String> schema;
     
-    public DojaiResultSet(org.ojai.DocumentStream documentStream) {
+    public DojaiResultSet(DocumentStream documentStream, List<String> selectFields) {
         this.documentStream = documentStream.iterator();
+        schema = selectFields;
     }
     
     @Override
     public boolean next() throws SQLException {
-        return documentStream.hasNext();
+        boolean hasNext = documentStream.hasNext();
+        
+        if (hasNext) {
+            current = documentStream.next();
+        }
+        
+        return hasNext;
     }
     
     @Override
     public void close() throws SQLException {
-    
     }
     
     @Override
@@ -49,134 +60,202 @@ public class DojaiResultSet implements ResultSet {
         return false;
     }
     
+    private void checkIndex(int columnIndex) throws SQLException {
+        
+        if (schema.size() < columnIndex) {
+            throw new SQLException("No available index: " + columnIndex);
+        }
+    }
+    
+    private void checkColumn(String label) throws SQLException {
+        if (!schema.contains(label)) {
+            throw new SQLException("Invalid column label: " + label);
+        }
+    }
+    
     @Override
     public String getString(int columnIndex) throws SQLException {
-        return null;
+        
+        checkIndex(columnIndex);
+        
+        return current.getString(schema.get(columnIndex));
     }
     
     @Override
     public boolean getBoolean(int columnIndex) throws SQLException {
-        return false;
+        checkIndex(columnIndex);
+        
+        return current.getBoolean(schema.get(columnIndex));
     }
     
     @Override
     public byte getByte(int columnIndex) throws SQLException {
-        return 0;
+        checkIndex(columnIndex);
+        
+        return current.getByte(schema.get(columnIndex));
     }
     
     @Override
     public short getShort(int columnIndex) throws SQLException {
-        return 0;
+        checkIndex(columnIndex);
+        
+        return current.getShort(schema.get(columnIndex));
     }
     
     @Override
     public int getInt(int columnIndex) throws SQLException {
-        return 0;
+        checkIndex(columnIndex);
+        
+        return current.getInt(schema.get(columnIndex));
     }
     
     @Override
     public long getLong(int columnIndex) throws SQLException {
-        return 0;
+        checkIndex(columnIndex);
+        
+        return current.getLong(schema.get(columnIndex));
     }
     
     @Override
     public float getFloat(int columnIndex) throws SQLException {
-        return 0;
+        checkIndex(columnIndex);
+        
+        return current.getFloat(schema.get(columnIndex));
     }
     
     @Override
     public double getDouble(int columnIndex) throws SQLException {
-        return 0;
+        checkIndex(columnIndex);
+        
+        return current.getDouble(schema.get(columnIndex));
     }
     
     @Override
     public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
-        return null;
+        checkIndex(columnIndex);
+        
+        return current.getDecimal(schema.get(columnIndex));
     }
     
     @Override
     public byte[] getBytes(int columnIndex) throws SQLException {
-        return new byte[0];
+        checkIndex(columnIndex);
+        
+        return current.getBinary(schema.get(columnIndex)).array();
     }
     
     @Override
     public Date getDate(int columnIndex) throws SQLException {
-        return null;
+        checkIndex(columnIndex);
+        
+        return Date.valueOf(current.getDate(schema.get(columnIndex)).toDateStr());
     }
     
     @Override
     public Time getTime(int columnIndex) throws SQLException {
-        return null;
+        checkIndex(columnIndex);
+        
+        return Time.valueOf(current.getTime(schema.get(columnIndex)).toTimeStr());
     }
     
     @Override
     public Timestamp getTimestamp(int columnIndex) throws SQLException {
-        return null;
+        checkIndex(columnIndex);
+        
+        return Timestamp.valueOf(current.getTimestamp(schema.get(columnIndex)).toString());
     }
     
     @Override
     public InputStream getAsciiStream(int columnIndex) throws SQLException {
-        return null;
+       return getBinaryStream(columnIndex);
     }
     
     @Override
     public InputStream getUnicodeStream(int columnIndex) throws SQLException {
-        return null;
+        return getBinaryStream(columnIndex);
     }
     
     @Override
     public InputStream getBinaryStream(int columnIndex) throws SQLException {
-        return null;
+    
+        checkIndex(columnIndex);
+    
+        try {
+            return new ByteArrayInputStream(current.getBinary(schema.get(columnIndex)).array());
+        } catch (Exception e) {
+            throw new SQLException(e);
+        }
     }
     
     @Override
     public String getString(String columnLabel) throws SQLException {
-        return null;
+    
+       checkColumn(columnLabel);
+    
+       return current.getString(columnLabel);
     }
     
     @Override
     public boolean getBoolean(String columnLabel) throws SQLException {
-        return false;
+        checkColumn(columnLabel);
+    
+        return current.getBoolean(columnLabel);
     }
     
     @Override
     public byte getByte(String columnLabel) throws SQLException {
-        return 0;
+        checkColumn(columnLabel);
+    
+        return current.getByte(columnLabel);
     }
     
     @Override
     public short getShort(String columnLabel) throws SQLException {
-        return 0;
+        checkColumn(columnLabel);
+    
+        return current.getShort(columnLabel);
     }
     
     @Override
     public int getInt(String columnLabel) throws SQLException {
-        return 0;
+        checkColumn(columnLabel);
+    
+        return current.getInt(columnLabel);
     }
     
     @Override
     public long getLong(String columnLabel) throws SQLException {
-        return 0;
+        checkColumn(columnLabel);
+    
+        return current.getLong(columnLabel);
     }
     
     @Override
     public float getFloat(String columnLabel) throws SQLException {
-        return 0;
+        checkColumn(columnLabel);
+    
+        return current.getFloat(columnLabel);
     }
     
     @Override
     public double getDouble(String columnLabel) throws SQLException {
-        return 0;
+        checkColumn(columnLabel);
+    
+        return current.getDouble(columnLabel);
     }
     
     @Override
     public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
-        return null;
+        checkColumn(columnLabel);
+    
+        return current.getDecimal(columnLabel);
     }
     
     @Override
     public byte[] getBytes(String columnLabel) throws SQLException {
-        return new byte[0];
+        checkColumn(columnLabel);
+    
+        return current.getBinary(columnLabel).array();
     }
     
     @Override

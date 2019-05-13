@@ -37,7 +37,8 @@ public class DojaiStatement implements Statement {
             
             val documents = store.find(query.getQuery());
             
-            return new DojaiResultSet(documents);
+            
+            return new DojaiResultSet(documents, query.getSelectFields());
             
         } catch (Exception e) {
             throw new SQLException("Error parsing SQL query", e);

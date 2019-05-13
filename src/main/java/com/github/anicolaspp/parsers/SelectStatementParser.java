@@ -11,6 +11,9 @@ import net.sf.jsqlparser.util.TablesNamesFinder;
 import org.ojai.store.Connection;
 import org.ojai.store.Query;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SelectStatementParser implements ChainParser {
     
     private Connection connection;
@@ -50,7 +53,7 @@ public class SelectStatementParser implements ChainParser {
         val plainSelectBody = (PlainSelect) select.getSelectBody();
         val query = connection.newQuery();
         
-        addSelect(plainSelectBody, query);
+        val schema = addSelect(plainSelectBody, query);
         addWhere(plainSelectBody, query);
         addLimit(plainSelectBody, query);
         
@@ -61,6 +64,7 @@ public class SelectStatementParser implements ChainParser {
                 .type(ParserType.SELECT)
                 .query(query.build())
                 .table(table)
+                .selectFields(schema)
                 .successful(true)
                 .build();
     }
@@ -78,7 +82,9 @@ public class SelectStatementParser implements ChainParser {
         return tablesNamesFinder.getTableList(statement).get(0);
     }
     
-    private void addSelect(PlainSelect plainSelectBody, Query query) {
+    private List<String> addSelect(PlainSelect plainSelectBody, Query query) {
+        List<String> fields = new ArrayList<>();
+        
         plainSelectBody
                 .getSelectItems()
                 .forEach(selectItem -> {
@@ -87,8 +93,11 @@ public class SelectStatementParser implements ChainParser {
                         String columnName = ((Column) ((SelectExpressionItem) selectItem).getExpression()).getColumnName();
                         
                         query.select(columnName);
+                        fields.add(columnName);
                     }
                 });
+        
+        return fields;
     }
     
     private void addWhere(PlainSelect plainSelectBody, Query query) {

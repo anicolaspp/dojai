@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.Getter;
 import org.ojai.store.Query;
 
+import java.util.List;
+
 
 @Data
 @AllArgsConstructor
@@ -16,6 +18,8 @@ public class ParserQueryResult {
     private Query query;
     
     private String table;
+    
+    private List<String> selectFields;
     
     private Boolean successful;
     
