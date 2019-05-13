@@ -8,7 +8,6 @@ public class InsertStatementParser implements ChainParser {
     private Connection connection;
     
     public InsertStatementParser(Connection connection) {
-        
         this.connection = connection;
     }
     

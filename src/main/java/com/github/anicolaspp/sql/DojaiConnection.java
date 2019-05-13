@@ -30,8 +30,8 @@ public class DojaiConnection implements Connection {
     private final org.ojai.store.Connection connection;
     private boolean isClosed = false;
     
-    DojaiConnection(String url, Properties info) {
-        this.connection = DriverManager.getConnection(url);
+    DojaiConnection() {
+        this.connection = DriverManager.getConnection("ojai:mapr:");
     }
     
     @Override

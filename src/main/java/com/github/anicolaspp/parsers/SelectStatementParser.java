@@ -70,6 +70,10 @@ public class SelectStatementParser implements ChainParser {
     }
     
     private void addLimit(PlainSelect plainSelectBody, Query query) {
+        if (plainSelectBody.getLimit() == null) {
+            return;
+        }
+        
         val limit = plainSelectBody.getLimit().getRowCount();
         
         if (limit instanceof LongValue) {
@@ -79,6 +83,7 @@ public class SelectStatementParser implements ChainParser {
     
     private String getTableName(Statement statement) {
         TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
+        
         return tablesNamesFinder.getTableList(statement).get(0);
     }
     

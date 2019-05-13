@@ -17,8 +17,12 @@ public class App {
         
         val statement = connection.createStatement();
         
-        val result = statement.executeQuery("select * from user.mapr.tables.random_data limit 10");
+        val result = statement.executeQuery("select name from user.mapr.some_data");
         
+        while (result.next()) {
+            System.out.println(result.getString(0));
+//            System.out.println(result.getString(1));
+        }
     
         System.out.println(statement);
     }

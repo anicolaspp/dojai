@@ -23,7 +23,7 @@ public class DojaiDriver implements Driver {
     public Connection connect(String url, Properties info) throws SQLException {
         if (acceptsURL(url)) {
         
-            return new DojaiConnection(url, info);
+            return new DojaiConnection();
             
         } else {
             return null;

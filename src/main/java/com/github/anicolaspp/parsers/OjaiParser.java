@@ -23,4 +23,3 @@ public interface OjaiParser {
         return connection.newQuery().build();
     }
 }
-
