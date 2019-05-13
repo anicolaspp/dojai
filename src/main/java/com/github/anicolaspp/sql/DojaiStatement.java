@@ -3,26 +3,20 @@ package com.github.anicolaspp.sql;
 import com.github.anicolaspp.parsers.ChainParser;
 import lombok.val;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import org.ojai.store.DriverManager;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
-import java.util.Properties;
 
 
 public class DojaiStatement implements Statement {
     
-    private final String url;
-    private final Properties info;
     private final org.ojai.store.Connection ojaiConnection;
     
-    public DojaiStatement(String url, Properties info) {
-        this.url = url;
-        this.info = info;
-        ojaiConnection = DriverManager.getConnection(url);
+    public DojaiStatement(org.ojai.store.Connection ojaiConnection) {
+        this.ojaiConnection = ojaiConnection;
     }
     
     @Override

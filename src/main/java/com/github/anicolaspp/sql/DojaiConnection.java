@@ -1,5 +1,11 @@
 package com.github.anicolaspp.sql;
 
+import com.github.anicolaspp.parsers.ChainParser;
+import lombok.val;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import org.ojai.store.DriverManager;
+
+import javax.ws.rs.NotSupportedException;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -23,39 +29,50 @@ public class DojaiConnection implements Connection {
     
     private final String url;
     private final Properties info;
+    private final org.ojai.store.Connection connection;
+    private boolean isClosed = false;
     
-    public DojaiConnection(String url, Properties info) {
-        
+    DojaiConnection(String url, Properties info) {
         this.url = url;
         this.info = info;
+        this.connection = DriverManager.getConnection(url);
     }
     
     @Override
     public Statement createStatement() throws SQLException {
-        return new DojaiStatement(url, info);
+        return new DojaiStatement(connection);
     }
     
     @Override
     public PreparedStatement prepareStatement(String sql) throws SQLException {
-        return null;
+        throw new NotSupportedException("prepareStatement are not supported. Please, use createStatement()");
     }
     
     @Override
     public CallableStatement prepareCall(String sql) throws SQLException {
-        return null;
+        throw new NotSupportedException("prepareCall are not supported. Please, use createStatement()");
     }
     
     @Override
     public String nativeSQL(String sql) throws SQLException {
-        
-        //returns OJAI QUERY DOCUMENT
-        
-        return null;
+        try {
+            val statement = CCJSqlParserUtil.parse(sql);
+            val result = ChainParser.build(connection).parse(statement);
+            
+            if (result.getSuccessful()) {
+                return result.getQuery().asJsonString();
+            } else {
+                return connection.newDocument().asJsonString();
+            }
+            
+        } catch (Exception e) {
+            throw new SQLException("Error parsing SQL", e);
+        }
     }
     
     @Override
     public void setAutoCommit(boolean autoCommit) throws SQLException {
-    
+        throw new SQLException("MapR Database does not support transactions");
     }
     
     @Override
@@ -65,22 +82,23 @@ public class DojaiConnection implements Connection {
     
     @Override
     public void commit() throws SQLException {
-    
+        throw new SQLException("MapR Database does not support transactions");
     }
     
     @Override
     public void rollback() throws SQLException {
-    
+        throw new SQLException("MapR Database does not support transactions");
     }
     
     @Override
     public void close() throws SQLException {
-    
+        connection.close();
+        isClosed = true;
     }
     
     @Override
     public boolean isClosed() throws SQLException {
-        return false;
+        return isClosed;
     }
     
     @Override
@@ -130,8 +148,7 @@ public class DojaiConnection implements Connection {
     
     @Override
     public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
-    
-       
+        
         
         return null;
     }
