@@ -17,19 +17,18 @@ public class DojaiStatement implements Statement {
     
     private final String url;
     private final Properties info;
+    private final org.ojai.store.Connection ojaiConnection;
     
     public DojaiStatement(String url, Properties info) {
         this.url = url;
         this.info = info;
+        ojaiConnection = DriverManager.getConnection(url);
     }
     
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
-        
         try {
             val statement = CCJSqlParserUtil.parse(sql);
-            
-            org.ojai.store.Connection ojaiConnection = DriverManager.getConnection("ojai:mapr:");
             
             val query = ChainParser.build(ojaiConnection).parse(statement);
             
@@ -37,8 +36,7 @@ public class DojaiStatement implements Statement {
             
             val documents = store.find(query.getQuery());
             
-            
-            return new DojaiResultSet(documents, query.getSelectFields());
+            return new DojaiResultSet(documents, query.getSelectFields(), store);
             
         } catch (Exception e) {
             throw new SQLException("Error parsing SQL query", e);
@@ -52,7 +50,11 @@ public class DojaiStatement implements Statement {
     
     @Override
     public void close() throws SQLException {
-        
+        try {
+            ojaiConnection.close();
+        } catch (Exception e) {
+            throw new SQLException("Error closing connection", e);
+        }
     }
     
     @Override

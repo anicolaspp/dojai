@@ -2,6 +2,7 @@ package com.github.anicolaspp.sql;
 
 import org.ojai.Document;
 import org.ojai.DocumentStream;
+import org.ojai.store.DocumentStore;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -34,10 +35,14 @@ public class DojaiResultSet implements ResultSet {
     
     private Iterator<Document> documentStream;
     private List<String> schema;
+    private DocumentStore store;
     
-    public DojaiResultSet(DocumentStream documentStream, List<String> selectFields) {
+    private boolean lastReadWasNull = false;
+    
+    DojaiResultSet(DocumentStream documentStream, List<String> selectFields, DocumentStore store) {
         this.documentStream = documentStream.iterator();
-        schema = selectFields;
+        this.schema = selectFields;
+        this.store = store;
     }
     
     @Override
@@ -53,11 +58,26 @@ public class DojaiResultSet implements ResultSet {
     
     @Override
     public void close() throws SQLException {
+        try {
+            store.close();
+        } catch (Exception e) {
+            throw new SQLException("Error closing store handler", e);
+        }
     }
     
     @Override
     public boolean wasNull() throws SQLException {
-        return false;
+        return lastReadWasNull;
+    }
+    
+    private void checkReadNull(String label) {
+        if (current.getValue(label) == null) {
+            this.lastReadWasNull = true;
+        }
+    }
+    
+    private void checkReadNull(int columnIndex) {
+        checkReadNull(schema.get(columnIndex));
     }
     
     private void checkIndex(int columnIndex) throws SQLException {
@@ -75,8 +95,8 @@ public class DojaiResultSet implements ResultSet {
     
     @Override
     public String getString(int columnIndex) throws SQLException {
-        
         checkIndex(columnIndex);
+        checkReadNull(columnIndex);
         
         return current.getString(schema.get(columnIndex));
     }
@@ -84,6 +104,7 @@ public class DojaiResultSet implements ResultSet {
     @Override
     public boolean getBoolean(int columnIndex) throws SQLException {
         checkIndex(columnIndex);
+        checkReadNull(columnIndex);
         
         return current.getBoolean(schema.get(columnIndex));
     }
@@ -91,6 +112,7 @@ public class DojaiResultSet implements ResultSet {
     @Override
     public byte getByte(int columnIndex) throws SQLException {
         checkIndex(columnIndex);
+        checkReadNull(columnIndex);
         
         return current.getByte(schema.get(columnIndex));
     }
@@ -98,6 +120,7 @@ public class DojaiResultSet implements ResultSet {
     @Override
     public short getShort(int columnIndex) throws SQLException {
         checkIndex(columnIndex);
+        checkReadNull(columnIndex);
         
         return current.getShort(schema.get(columnIndex));
     }
@@ -105,6 +128,7 @@ public class DojaiResultSet implements ResultSet {
     @Override
     public int getInt(int columnIndex) throws SQLException {
         checkIndex(columnIndex);
+        checkReadNull(columnIndex);
         
         return current.getInt(schema.get(columnIndex));
     }
@@ -112,6 +136,7 @@ public class DojaiResultSet implements ResultSet {
     @Override
     public long getLong(int columnIndex) throws SQLException {
         checkIndex(columnIndex);
+        checkReadNull(columnIndex);
         
         return current.getLong(schema.get(columnIndex));
     }
@@ -119,6 +144,7 @@ public class DojaiResultSet implements ResultSet {
     @Override
     public float getFloat(int columnIndex) throws SQLException {
         checkIndex(columnIndex);
+        checkReadNull(columnIndex);
         
         return current.getFloat(schema.get(columnIndex));
     }
@@ -126,6 +152,7 @@ public class DojaiResultSet implements ResultSet {
     @Override
     public double getDouble(int columnIndex) throws SQLException {
         checkIndex(columnIndex);
+        checkReadNull(columnIndex);
         
         return current.getDouble(schema.get(columnIndex));
     }
@@ -133,6 +160,7 @@ public class DojaiResultSet implements ResultSet {
     @Override
     public BigDecimal getBigDecimal(int columnIndex, int scale) throws SQLException {
         checkIndex(columnIndex);
+        checkReadNull(columnIndex);
         
         return current.getDecimal(schema.get(columnIndex));
     }
@@ -140,6 +168,7 @@ public class DojaiResultSet implements ResultSet {
     @Override
     public byte[] getBytes(int columnIndex) throws SQLException {
         checkIndex(columnIndex);
+        checkReadNull(columnIndex);
         
         return current.getBinary(schema.get(columnIndex)).array();
     }
@@ -147,6 +176,7 @@ public class DojaiResultSet implements ResultSet {
     @Override
     public Date getDate(int columnIndex) throws SQLException {
         checkIndex(columnIndex);
+        checkReadNull(columnIndex);
         
         return Date.valueOf(current.getDate(schema.get(columnIndex)).toDateStr());
     }
@@ -154,6 +184,7 @@ public class DojaiResultSet implements ResultSet {
     @Override
     public Time getTime(int columnIndex) throws SQLException {
         checkIndex(columnIndex);
+        checkReadNull(columnIndex);
         
         return Time.valueOf(current.getTime(schema.get(columnIndex)).toTimeStr());
     }
@@ -161,25 +192,32 @@ public class DojaiResultSet implements ResultSet {
     @Override
     public Timestamp getTimestamp(int columnIndex) throws SQLException {
         checkIndex(columnIndex);
+        checkReadNull(columnIndex);
         
         return Timestamp.valueOf(current.getTimestamp(schema.get(columnIndex)).toString());
     }
     
     @Override
     public InputStream getAsciiStream(int columnIndex) throws SQLException {
-       return getBinaryStream(columnIndex);
+        checkIndex(columnIndex);
+        checkReadNull(columnIndex);
+        
+        return getBinaryStream(columnIndex);
     }
     
     @Override
     public InputStream getUnicodeStream(int columnIndex) throws SQLException {
+        checkIndex(columnIndex);
+        checkReadNull(columnIndex);
+        
         return getBinaryStream(columnIndex);
     }
     
     @Override
     public InputStream getBinaryStream(int columnIndex) throws SQLException {
-    
         checkIndex(columnIndex);
-    
+        checkReadNull(columnIndex);
+        
         try {
             return new ByteArrayInputStream(current.getBinary(schema.get(columnIndex)).array());
         } catch (Exception e) {
@@ -189,72 +227,81 @@ public class DojaiResultSet implements ResultSet {
     
     @Override
     public String getString(String columnLabel) throws SQLException {
-    
-       checkColumn(columnLabel);
-    
-       return current.getString(columnLabel);
+        checkColumn(columnLabel);
+        checkReadNull(columnLabel);
+        
+        return current.getString(columnLabel);
     }
     
     @Override
     public boolean getBoolean(String columnLabel) throws SQLException {
         checkColumn(columnLabel);
-    
+        checkReadNull(columnLabel);
+        
         return current.getBoolean(columnLabel);
     }
     
     @Override
     public byte getByte(String columnLabel) throws SQLException {
         checkColumn(columnLabel);
-    
+        checkReadNull(columnLabel);
+        
         return current.getByte(columnLabel);
     }
     
     @Override
     public short getShort(String columnLabel) throws SQLException {
         checkColumn(columnLabel);
-    
+        checkReadNull(columnLabel);
+        
         return current.getShort(columnLabel);
     }
     
     @Override
     public int getInt(String columnLabel) throws SQLException {
         checkColumn(columnLabel);
-    
+        checkReadNull(columnLabel);
+        
         return current.getInt(columnLabel);
     }
     
     @Override
     public long getLong(String columnLabel) throws SQLException {
         checkColumn(columnLabel);
-    
+        checkReadNull(columnLabel);
+        
         return current.getLong(columnLabel);
     }
     
     @Override
     public float getFloat(String columnLabel) throws SQLException {
         checkColumn(columnLabel);
-    
+        checkReadNull(columnLabel);
+        
         return current.getFloat(columnLabel);
     }
     
     @Override
     public double getDouble(String columnLabel) throws SQLException {
         checkColumn(columnLabel);
-    
+        checkReadNull(columnLabel);
+        
         return current.getDouble(columnLabel);
     }
     
     @Override
     public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
         checkColumn(columnLabel);
-    
+        checkReadNull(columnLabel);
+        
         return current.getDecimal(columnLabel);
     }
     
     @Override
     public byte[] getBytes(String columnLabel) throws SQLException {
         checkColumn(columnLabel);
-    
+        checkReadNull(columnLabel);
+        
         return current.getBinary(columnLabel).array();
     }
     
