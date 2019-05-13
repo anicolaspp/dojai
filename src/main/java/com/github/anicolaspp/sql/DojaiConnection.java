@@ -27,14 +27,10 @@ import java.util.concurrent.Executor;
 
 public class DojaiConnection implements Connection {
     
-    private final String url;
-    private final Properties info;
     private final org.ojai.store.Connection connection;
     private boolean isClosed = false;
     
     DojaiConnection(String url, Properties info) {
-        this.url = url;
-        this.info = info;
         this.connection = DriverManager.getConnection(url);
     }
     
