@@ -11,7 +11,7 @@ public class SelectStatementParserTest implements JavaOjaiTesting {
     @Test
     public void testSelect() throws Exception {
         
-        val sql = "select a as aa, b from t1 as tx";
+        val sql = "select a, b from t1 where a = 5 and b <= 10";
         
         val parser = new SelectStatementParser(connection());
         
@@ -20,3 +20,5 @@ public class SelectStatementParserTest implements JavaOjaiTesting {
         System.out.println(query);
     }
 }
+
+

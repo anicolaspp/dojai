@@ -1,12 +1,20 @@
 package com.github.anicolaspp.parsers;
 
 import lombok.val;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
+import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.util.TablesNamesFinder;
 import org.ojai.store.Connection;
+import org.ojai.store.Query;
+import org.ojai.store.QueryCondition;
 
 public class SelectStatementParser implements ChainParser {
     
@@ -25,16 +33,17 @@ public class SelectStatementParser implements ChainParser {
     @Override
     public ParserQueryResult getQueryFrom(Statement statement) {
         
-        //TODO: try parsing a select. If it fails, calls next.getQueryFrom
-        
         if (!(statement instanceof Select)) {
-            return  ParserQueryResult
+            return ParserQueryResult
                     .builder()
                     .query(emptyQuery(connection))
                     .build();
         }
         
-        val select = (Select) statement;
+        return parseSelect((Select) statement);
+    }
+    
+    private ParserQueryResult parseSelect(Select select) {
         
         if (!(select.getSelectBody() instanceof PlainSelect)) {
             return ParserQueryResult
@@ -47,24 +56,115 @@ public class SelectStatementParser implements ChainParser {
         
         val query = connection.newQuery();
         
-        plainSelectBody.getSelectItems().forEach(selectItem -> {
-    
-            if (selectItem instanceof SelectExpressionItem) {
-                String columnName = ((Column) ((SelectExpressionItem) selectItem).getExpression()).getColumnName();
-                
-                query.select(columnName);
-            }
-        });
+        addSelect(plainSelectBody, query);
         
-        String table = "";   //TODO: find table name and aliases
+        addWhere(plainSelectBody, query);
         
+        String table = getTableName(select);
         
         return ParserQueryResult
                 .builder()
                 .type(ParserType.SELECT)
-                .query(query)
+                .query(query.build())
                 .table(table)
                 .successful(true)
                 .build();
     }
+    
+    private String getTableName(Statement statement) {
+        TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
+        return tablesNamesFinder.getTableList(statement).get(0);
+    }
+    
+    private void addSelect(PlainSelect plainSelectBody, Query query) {
+        plainSelectBody
+                .getSelectItems()
+                .forEach(selectItem -> {
+                    
+                    if (selectItem instanceof SelectExpressionItem) {
+                        String columnName = ((Column) ((SelectExpressionItem) selectItem).getExpression()).getColumnName();
+                        
+                        query.select(columnName);
+                    }
+                });
+    }
+    
+    private void addWhere(PlainSelect plainSelectBody, Query query) {
+        val queryCondition = new WhereParser(connection).parse(plainSelectBody.getWhere());
+        
+        query.where(queryCondition);
+    }
+}
+
+class WhereParser {
+    
+    private Connection connection;
+    
+    WhereParser(Connection connection) {
+        
+        this.connection = connection;
+    }
+    
+    
+    public QueryCondition parse(Expression where) {
+        
+        if (where instanceof EqualsTo) {
+            return parseEqualsTo((EqualsTo) where);
+        } else if (where instanceof GreaterThanEquals) {
+            return parseGreaterThanEquals((GreaterThanEquals) where);
+        } else if (where instanceof MinorThanEquals) {
+            return parseMinorThanEquals((MinorThanEquals) where);
+        } else if (where instanceof AndExpression) {
+            return parseAnd((AndExpression) where);
+        }
+        
+        return connection.newCondition().build();
+    }
+    
+    private QueryCondition parseAnd(AndExpression and) {
+        
+        val left = parse(and.getLeftExpression());
+        val right = parse(and.getRightExpression());
+        
+        return connection.newCondition()
+                .and()
+                .condition(left)
+                .condition(right)
+                .close()
+                .build();
+    }
+    
+    private QueryCondition parseMinorThanEquals(MinorThanEquals minorThanEquals) {
+        
+        val field = minorThanEquals.getLeftExpression();
+        val value = minorThanEquals.getRightExpression();
+        
+        return connection
+                .newCondition()
+                .is(field.toString(), QueryCondition.Op.LESS_OR_EQUAL, value.toString())
+                .build();
+    }
+    
+    private QueryCondition parseGreaterThanEquals(GreaterThanEquals greaterThanEquals) {
+        
+        val field = greaterThanEquals.getLeftExpression();
+        val value = greaterThanEquals.getRightExpression();
+        
+        return connection
+                .newCondition()
+                .is(field.toString(), QueryCondition.Op.GREATER_OR_EQUAL, value.toString())
+                .build();
+    }
+    
+    private QueryCondition parseEqualsTo(EqualsTo equalsTo) {
+        
+        val field = equalsTo.getLeftExpression();
+        val value = equalsTo.getRightExpression();
+        
+        return connection
+                .newCondition()
+                .is(field.toString(), QueryCondition.Op.EQUAL, value.toString())
+                .build();
+    }
+    
 }
