@@ -4,7 +4,9 @@ import lombok.val;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
 import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
+import net.sf.jsqlparser.expression.operators.relational.MinorThan;
 import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
@@ -105,13 +107,16 @@ class WhereParser {
         this.connection = connection;
     }
     
-    
     public QueryCondition parse(Expression where) {
         
         if (where instanceof EqualsTo) {
             return parseEqualsTo((EqualsTo) where);
+        } else if (where instanceof GreaterThan) {
+            return parseGreaterThan((GreaterThan) where);
         } else if (where instanceof GreaterThanEquals) {
             return parseGreaterThanEquals((GreaterThanEquals) where);
+        } else if (where instanceof MinorThan) {
+            return parseMinorThan((MinorThan) where);
         } else if (where instanceof MinorThanEquals) {
             return parseMinorThanEquals((MinorThanEquals) where);
         } else if (where instanceof AndExpression) {
@@ -134,37 +139,46 @@ class WhereParser {
                 .build();
     }
     
-    private QueryCondition parseMinorThanEquals(MinorThanEquals minorThanEquals) {
-        
-        val field = minorThanEquals.getLeftExpression();
-        val value = minorThanEquals.getRightExpression();
-        
+    private QueryCondition cmp(String field, String value, QueryCondition.Op op) {
         return connection
                 .newCondition()
-                .is(field.toString(), QueryCondition.Op.LESS_OR_EQUAL, value.toString())
+                .is(field, op, value)
                 .build();
+    }
+    
+    private QueryCondition parseMinorThan(MinorThan minorThan) {
+        return cmp(
+                minorThan.getLeftExpression().toString(),
+                minorThan.getRightExpression().toString(),
+                QueryCondition.Op.LESS);
+    }
+    
+    private QueryCondition parseMinorThanEquals(MinorThanEquals minorThanEquals) {
+        return cmp(
+                minorThanEquals.getLeftExpression().toString(),
+                minorThanEquals.getRightExpression().toString(),
+                QueryCondition.Op.LESS_OR_EQUAL);
+    }
+    
+    private QueryCondition parseGreaterThan(GreaterThan greaterThan) {
+        return cmp(
+                greaterThan.getLeftExpression().toString(),
+                greaterThan.getRightExpression().toString(),
+                QueryCondition.Op.GREATER);
     }
     
     private QueryCondition parseGreaterThanEquals(GreaterThanEquals greaterThanEquals) {
-        
-        val field = greaterThanEquals.getLeftExpression();
-        val value = greaterThanEquals.getRightExpression();
-        
-        return connection
-                .newCondition()
-                .is(field.toString(), QueryCondition.Op.GREATER_OR_EQUAL, value.toString())
-                .build();
+        return cmp(
+                greaterThanEquals.getLeftExpression().toString(),
+                greaterThanEquals.getRightExpression().toString(),
+                QueryCondition.Op.GREATER_OR_EQUAL);
     }
     
     private QueryCondition parseEqualsTo(EqualsTo equalsTo) {
-        
-        val field = equalsTo.getLeftExpression();
-        val value = equalsTo.getRightExpression();
-        
-        return connection
-                .newCondition()
-                .is(field.toString(), QueryCondition.Op.EQUAL, value.toString())
-                .build();
+        return cmp(
+                equalsTo.getLeftExpression().toString(),
+                equalsTo.getRightExpression().toString(),
+                QueryCondition.Op.EQUAL);
     }
     
 }
