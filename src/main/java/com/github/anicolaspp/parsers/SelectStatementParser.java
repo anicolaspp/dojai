@@ -3,6 +3,7 @@ package com.github.anicolaspp.parsers;
 import lombok.val;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
+import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
 import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
@@ -107,7 +108,7 @@ class WhereParser {
         this.connection = connection;
     }
     
-    public QueryCondition parse(Expression where) {
+    QueryCondition parse(Expression where) {
         
         if (where instanceof EqualsTo) {
             return parseEqualsTo((EqualsTo) where);
@@ -121,9 +122,23 @@ class WhereParser {
             return parseMinorThanEquals((MinorThanEquals) where);
         } else if (where instanceof AndExpression) {
             return parseAnd((AndExpression) where);
+        } else if (where instanceof OrExpression) {
+            return parseOr((OrExpression) where);
         }
         
         return connection.newCondition().build();
+    }
+    
+    private QueryCondition parseOr(OrExpression or) {
+        val left = parse(or.getLeftExpression());
+        val right = parse(or.getRightExpression());
+    
+        return connection.newCondition()
+                .or()
+                .condition(left)
+                .condition(right)
+                .close()
+                .build();
     }
     
     private QueryCondition parseAnd(AndExpression and) {
