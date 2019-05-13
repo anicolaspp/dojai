@@ -1,5 +1,7 @@
 package com.github.anicolaspp.sql;
 
+import org.ojai.Document;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -20,13 +22,21 @@ import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.Map;
 
 public class DojaiResultSet implements ResultSet {
     
+    
+    private Iterator<Document> documentStream;
+    
+    public DojaiResultSet(org.ojai.DocumentStream documentStream) {
+        this.documentStream = documentStream.iterator();
+    }
+    
     @Override
     public boolean next() throws SQLException {
-        return false;
+        return documentStream.hasNext();
     }
     
     @Override

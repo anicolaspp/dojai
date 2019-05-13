@@ -3,6 +3,7 @@ package com.github.anicolaspp.sql;
 import com.github.anicolaspp.parsers.ChainParser;
 import lombok.val;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import org.ojai.store.DriverManager;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -27,19 +28,20 @@ public class DojaiStatement implements Statement {
         
         try {
             val statement = CCJSqlParserUtil.parse(sql);
-    
-            org.ojai.store.Connection ojaiConnection = null;
+            
+            org.ojai.store.Connection ojaiConnection = DriverManager.getConnection("ojai:mapr:");
             
             val query = ChainParser.build(ojaiConnection).parse(statement);
             
+            val store = ojaiConnection.getStore("/" + query.getTable().replace(".", "/"));
             
+            val documents = store.find(query.getQuery());
+            
+            return new DojaiResultSet(documents);
             
         } catch (Exception e) {
             throw new SQLException("Error parsing SQL query", e);
         }
-        
-        
-        return null;
     }
     
     @Override
