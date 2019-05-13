@@ -47,4 +47,4 @@ At this early stage
 - Not aliases are allowed (`name as n`). 
 - Not Start (`*`) schema allowed. Queries should use `select [<column1>, ...] ....`.
 - MapR Database table path are represented using `.` instead of `/` or `\`. Notice on the example `user.mapr.some_data`. That refers to a table that lives on `/user/mapr/some_data`.
-- No query should go cross tables (`join`, etc...).
+- No query should go across tables (`join`, etc...).
