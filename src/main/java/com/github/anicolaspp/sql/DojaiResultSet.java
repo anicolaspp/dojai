@@ -37,6 +37,8 @@ public class DojaiResultSet implements ResultSet {
     private List<String> schema;
     private DocumentStore store;
     
+    private int rowNumber = 0;
+    
     private boolean lastReadWasNull = false;
     
     DojaiResultSet(DocumentStream documentStream, List<String> selectFields, DocumentStore store) {
@@ -51,6 +53,7 @@ public class DojaiResultSet implements ResultSet {
         
         if (hasNext) {
             current = documentStream.next();
+            rowNumber++;
         }
         
         return hasNext;
@@ -367,7 +370,7 @@ public class DojaiResultSet implements ResultSet {
     
     @Override
     public String getCursorName() throws SQLException {
-        return null;
+        return "MapRDB Stream";
     }
     
     @Override
@@ -410,22 +413,28 @@ public class DojaiResultSet implements ResultSet {
     
     @Override
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
-        return null;
+        checkIndex(columnIndex);
+        checkReadNull(columnIndex);
+        
+        return current.getDecimal(schema.get(columnIndex));
     }
     
     @Override
     public BigDecimal getBigDecimal(String columnLabel) throws SQLException {
-        return null;
+        checkColumn(columnLabel);
+        checkReadNull(columnLabel);
+        
+        return current.getDecimal(columnLabel);
     }
     
     @Override
     public boolean isBeforeFirst() throws SQLException {
-        return false;
+        return current == null;
     }
     
     @Override
     public boolean isAfterLast() throws SQLException {
-        return false;
+        return !documentStream.hasNext();
     }
     
     @Override
@@ -460,7 +469,7 @@ public class DojaiResultSet implements ResultSet {
     
     @Override
     public int getRow() throws SQLException {
-        return 0;
+        return rowNumber;
     }
     
     @Override
