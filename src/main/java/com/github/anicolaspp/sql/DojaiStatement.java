@@ -14,9 +14,11 @@ import java.sql.Statement;
 public class DojaiStatement implements Statement {
     
     private final org.ojai.store.Connection ojaiConnection;
+    private DojaiConnection dojaiConnection;
     
-    public DojaiStatement(org.ojai.store.Connection ojaiConnection) {
+    public DojaiStatement(org.ojai.store.Connection ojaiConnection, DojaiConnection dojaiConnection) {
         this.ojaiConnection = ojaiConnection;
+        this.dojaiConnection = dojaiConnection;
     }
     
     @Override
@@ -173,7 +175,7 @@ public class DojaiStatement implements Statement {
     
     @Override
     public Connection getConnection() throws SQLException {
-        return null;
+        return this.dojaiConnection;
     }
     
     @Override
