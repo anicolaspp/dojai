@@ -36,7 +36,7 @@ public class DojaiConnection implements Connection {
     
     @Override
     public Statement createStatement() throws SQLException {
-        return new DojaiStatement(connection);
+        return new DojaiStatement(connection, this);
     }
     
     @Override
