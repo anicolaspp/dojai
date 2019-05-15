@@ -4,11 +4,11 @@ import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.update.Update;
 import org.ojai.store.Connection;
 
-public class InsertStatementParser implements ChainParser {
+public class UpdateStatementParser implements ChainParser {
     
     private Connection connection;
     
-    public InsertStatementParser(Connection connection) {
+    public UpdateStatementParser(Connection connection) {
         this.connection = connection;
     }
     
@@ -20,13 +20,15 @@ public class InsertStatementParser implements ChainParser {
     @Override
     public ParserQueryResult getQueryFrom(Statement statement) {
         
-        if (statement instanceof Update) {
-            System.out.println("update");
+        if (!(statement instanceof Update)) {
+            return ParserQueryResult
+                    .builder()
+                    .successful(false)
+                    .build();
         }
+    
+        System.out.println("update");
         
-        return ParserQueryResult
-                .builder()
-                .successful(false)
-                .build();
+        return null;
     }
 }

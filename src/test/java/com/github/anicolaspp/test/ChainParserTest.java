@@ -1,7 +1,7 @@
 package com.github.anicolaspp.test;
 
 import com.github.anicolaspp.parsers.ChainParser;
-import com.github.anicolaspp.parsers.InsertStatementParser;
+import com.github.anicolaspp.parsers.UpdateStatementParser;
 import com.github.anicolaspp.parsers.SelectStatementParser;
 import lombok.val;
 import org.junit.Test;
@@ -15,7 +15,7 @@ public class ChainParserTest {
         
         assert parser instanceof SelectStatementParser;
         
-        assert parser.next() instanceof InsertStatementParser;
+        assert parser.next() instanceof UpdateStatementParser;
     }
     
     

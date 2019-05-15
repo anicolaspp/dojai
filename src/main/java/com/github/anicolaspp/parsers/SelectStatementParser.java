@@ -25,7 +25,7 @@ public class SelectStatementParser implements ChainParser {
     
     @Override
     public ChainParser next() {
-        return new InsertStatementParser(connection);
+        return new UpdateStatementParser(connection);
     }
     
     @Override
