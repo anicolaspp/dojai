@@ -19,6 +19,8 @@ public class App {
         
         val result = statement.executeQuery("select name from user.mapr.some_data");
         
+        statement.executeQuery("update user.mapr.some_data set name = 'hehe'");
+        
         while (result.next()) {
             System.out.println(result.getString(0));
 //            System.out.println(result.getString(1));

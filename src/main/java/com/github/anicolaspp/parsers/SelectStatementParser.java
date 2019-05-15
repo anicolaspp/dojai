@@ -34,6 +34,7 @@ public class SelectStatementParser implements ChainParser {
         if (!(statement instanceof Select)) {
             return ParserQueryResult
                     .builder()
+                    .successful(false)
                     .query(emptyQuery(connection))
                     .build();
         }
