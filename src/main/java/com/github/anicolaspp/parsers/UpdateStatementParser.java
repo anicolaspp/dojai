@@ -1,5 +1,6 @@
 package com.github.anicolaspp.parsers;
 
+import lombok.val;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.update.Update;
 import org.ojai.store.Connection;
@@ -26,6 +27,22 @@ public class UpdateStatementParser implements ChainParser {
                     .successful(false)
                     .build();
         }
+        
+        val update = (Update) statement;
+        val query = connection.newQuery();
+        
+        QueryFunctions.addWhere(update.getWhere(), query, connection);
+        QueryFunctions.addLimit(update.getLimit(), query);
+    
+        if (update.getColumns() != null && update.getColumns().size() > 0) {
+            for (int i = 0; i < update.getColumns().size(); i++) {
+//                connection.newMutation()
+//                        .set(update.getColumns().get(i), update.getExpressions().get(i))
+                        
+            }
+        }
+        
+        String table = QueryFunctions.getTableName(update);
     
         System.out.println("update");
         

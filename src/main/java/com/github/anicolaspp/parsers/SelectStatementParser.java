@@ -1,13 +1,11 @@
 package com.github.anicolaspp.parsers;
 
 import lombok.val;
-import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import net.sf.jsqlparser.util.TablesNamesFinder;
 import org.ojai.store.Connection;
 import org.ojai.store.Query;
 
@@ -55,10 +53,10 @@ public class SelectStatementParser implements ChainParser {
         val query = connection.newQuery();
         
         val schema = addSelect(plainSelectBody, query);
-        addWhere(plainSelectBody, query);
-        addLimit(plainSelectBody, query);
+        QueryFunctions.addWhere(plainSelectBody.getWhere(), query, connection);
+        QueryFunctions.addLimit(plainSelectBody.getLimit(), query);
         
-        String table = getTableName(select);
+        String table = QueryFunctions.getTableName(select);
         
         return ParserQueryResult
                 .builder()
@@ -68,24 +66,6 @@ public class SelectStatementParser implements ChainParser {
                 .selectFields(schema)
                 .successful(true)
                 .build();
-    }
-    
-    private void addLimit(PlainSelect plainSelectBody, Query query) {
-        if (plainSelectBody.getLimit() == null) {
-            return;
-        }
-        
-        val limit = plainSelectBody.getLimit().getRowCount();
-        
-        if (limit instanceof LongValue) {
-            query.limit(((LongValue) limit).getValue());
-        }
-    }
-    
-    private String getTableName(Statement statement) {
-        TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
-        
-        return tablesNamesFinder.getTableList(statement).get(0);
     }
     
     private List<String> addSelect(PlainSelect plainSelectBody, Query query) {
@@ -105,10 +85,5 @@ public class SelectStatementParser implements ChainParser {
         
         return fields;
     }
-    
-    private void addWhere(PlainSelect plainSelectBody, Query query) {
-        val queryCondition = new WhereParser(connection).parse(plainSelectBody.getWhere());
-        
-        query.where(queryCondition);
-    }
 }
+
