@@ -36,6 +36,8 @@ public class UpdateStatementParser implements ChainParser {
     
         if (update.getColumns() != null && update.getColumns().size() > 0) {
             for (int i = 0; i < update.getColumns().size(); i++) {
+                
+                //TODO: set for different EXPRESION types.
 //                connection.newMutation()
 //                        .set(update.getColumns().get(i), update.getExpressions().get(i))
                         
