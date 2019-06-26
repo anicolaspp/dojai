@@ -73,6 +73,7 @@ public class WhereParser {
     private String getName(String label) {
         return schema
                 .stream()
+                .filter(field -> field.getAlias() != null)
                 .filter(field -> field.getAlias().equals(label))
                 .findAny()
                 .map(SelectField::getName)

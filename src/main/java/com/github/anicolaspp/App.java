@@ -18,15 +18,15 @@ public class App  {
 
         val statement = connection.createStatement();
 
-        val result = statement.executeQuery("select name as n, age from `/user/mapr/tables/dojai` where n = 'ivan'");
+        val result = statement.executeQuery("select name as n, age from `/user/mapr/tables/dojai` where n = 'ivan' Or age = 30");
 
 //        statement.executeQuery("update user.mapr.some_data set name = 'hehe'");
 
         while (result.next()) {
             System.out.println(result.getString(0));
-            System.out.println(result.getInt(1));
+            System.out.println(result.getString(1));
             System.out.println(result.getString("n"));
-            System.out.println(result.getInt("age"));
+            System.out.println(result.getString("age"));
         }
 
         System.out.println(statement);
