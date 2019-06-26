@@ -12,17 +12,20 @@ import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import org.ojai.store.Connection;
 import org.ojai.store.QueryCondition;
 
+import java.util.List;
+
 public class WhereParser {
-    
+
     private Connection connection;
-    
-    WhereParser(Connection connection) {
-        
+    private List<SelectField> schema;
+
+    WhereParser(Connection connection, List<SelectField> schema) {
         this.connection = connection;
+        this.schema = schema;
     }
-    
+
     QueryCondition parse(Expression where) {
-        
+
         if (where instanceof EqualsTo) {
             return parseEqualsTo((EqualsTo) where);
         } else if (where instanceof GreaterThan) {
@@ -38,14 +41,14 @@ public class WhereParser {
         } else if (where instanceof OrExpression) {
             return parseOr((OrExpression) where);
         }
-        
+
         return connection.newCondition().build();
     }
-    
+
     private QueryCondition parseOr(OrExpression or) {
         val left = parse(or.getLeftExpression());
         val right = parse(or.getRightExpression());
-    
+
         return connection.newCondition()
                 .or()
                 .condition(left)
@@ -53,12 +56,12 @@ public class WhereParser {
                 .close()
                 .build();
     }
-    
+
     private QueryCondition parseAnd(AndExpression and) {
-        
+
         val left = parse(and.getLeftExpression());
         val right = parse(and.getRightExpression());
-        
+
         return connection.newCondition()
                 .and()
                 .condition(left)
@@ -66,47 +69,56 @@ public class WhereParser {
                 .close()
                 .build();
     }
-    
+
+    private String getName(String label) {
+        return schema
+                .stream()
+                .filter(field -> field.getAlias().equals(label))
+                .findAny()
+                .map(SelectField::getName)
+                .orElse(label);
+    }
+
     private QueryCondition cmp(String field, String value, QueryCondition.Op op) {
         return connection
                 .newCondition()
-                .is(field, op, value)
+                .is(getName(field), op, value.replace("'",""))
                 .build();
     }
-    
+
     private QueryCondition parseMinorThan(MinorThan minorThan) {
         return cmp(
                 minorThan.getLeftExpression().toString(),
                 minorThan.getRightExpression().toString(),
                 QueryCondition.Op.LESS);
     }
-    
+
     private QueryCondition parseMinorThanEquals(MinorThanEquals minorThanEquals) {
         return cmp(
                 minorThanEquals.getLeftExpression().toString(),
                 minorThanEquals.getRightExpression().toString(),
                 QueryCondition.Op.LESS_OR_EQUAL);
     }
-    
+
     private QueryCondition parseGreaterThan(GreaterThan greaterThan) {
         return cmp(
                 greaterThan.getLeftExpression().toString(),
                 greaterThan.getRightExpression().toString(),
                 QueryCondition.Op.GREATER);
     }
-    
+
     private QueryCondition parseGreaterThanEquals(GreaterThanEquals greaterThanEquals) {
         return cmp(
                 greaterThanEquals.getLeftExpression().toString(),
                 greaterThanEquals.getRightExpression().toString(),
                 QueryCondition.Op.GREATER_OR_EQUAL);
     }
-    
+
     private QueryCondition parseEqualsTo(EqualsTo equalsTo) {
         return cmp(
                 equalsTo.getLeftExpression().toString(),
                 equalsTo.getRightExpression().toString(),
                 QueryCondition.Op.EQUAL);
     }
-    
+
 }

@@ -14,15 +14,15 @@ import java.util.List;
 @Builder(toBuilder = true)
 @Getter
 public class ParserQueryResult {
-    
+
     private Query query;
-    
+
     private String table;
-    
-    private List<String> selectFields;
-    
+
+    private List<SelectField> selectFields;
+
     private Boolean successful;
-    
+
     private ParserType type;
 }
 
