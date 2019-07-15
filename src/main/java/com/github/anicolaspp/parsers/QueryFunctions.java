@@ -1,5 +1,6 @@
 package com.github.anicolaspp.parsers;
 
+import com.github.anicolaspp.parsers.select.SelectField;
 import lombok.val;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
@@ -19,7 +20,7 @@ public class QueryFunctions {
     public static String getTableName(Statement statement) {
         TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
 
-        return tablesNamesFinder.getTableList(statement).get(0);
+        return tablesNamesFinder.getTableList(statement).get(0).replace("`","");
     }
 
     public static void addWhere(Expression where, Query query, Connection connection, List<SelectField> schema) {
@@ -38,9 +39,5 @@ public class QueryFunctions {
         if (theLimit instanceof LongValue) {
             query.limit(((LongValue) theLimit).getValue());
         }
-    }
-
-    public static String getTableNameFrom(String systemTableName) {
-        return systemTableName.replace("`","");
     }
 }

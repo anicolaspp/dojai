@@ -1,5 +1,10 @@
-package com.github.anicolaspp.parsers;
+package com.github.anicolaspp.parsers.insert;
 
+import com.github.anicolaspp.parsers.ChainParser;
+import com.github.anicolaspp.parsers.ParserQueryResult;
+import com.github.anicolaspp.parsers.ParserType;
+import com.github.anicolaspp.parsers.QueryFunctions;
+import com.github.anicolaspp.parsers.unknown.UnsupportedStatementParser;
 import com.mapr.ojai.store.impl.Values;
 import lombok.val;
 import net.sf.jsqlparser.expression.Expression;

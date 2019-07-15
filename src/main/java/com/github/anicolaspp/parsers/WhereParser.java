@@ -1,5 +1,6 @@
 package com.github.anicolaspp.parsers;
 
+import com.github.anicolaspp.parsers.select.SelectField;
 import lombok.val;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;

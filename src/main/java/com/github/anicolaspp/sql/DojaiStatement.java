@@ -1,7 +1,7 @@
 package com.github.anicolaspp.sql;
 
 import com.github.anicolaspp.parsers.ChainParser;
-import com.github.anicolaspp.parsers.InsertParserResult;
+import com.github.anicolaspp.parsers.insert.InsertParserResult;
 import com.github.anicolaspp.parsers.QueryFunctions;
 import lombok.val;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
@@ -31,7 +31,7 @@ public class DojaiStatement implements Statement {
 
             val query = ChainParser.build(ojaiConnection).parse(statement);
 
-            val tableName = QueryFunctions.getTableNameFrom(query.getTable());
+            val tableName = query.getTable();
 
             val store = ojaiConnection.getStore(tableName);
 
@@ -52,7 +52,7 @@ public class DojaiStatement implements Statement {
 
             val query = (InsertParserResult) ChainParser.build(ojaiConnection).parse(statement);
 
-            val tableName = QueryFunctions.getTableNameFrom(query.getTable());
+            val tableName = query.getTable();
 
             val store = ojaiConnection.getStore(tableName);
 

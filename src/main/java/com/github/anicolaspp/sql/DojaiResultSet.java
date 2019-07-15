@@ -1,6 +1,6 @@
 package com.github.anicolaspp.sql;
 
-import com.github.anicolaspp.parsers.SelectField;
+import com.github.anicolaspp.parsers.select.SelectField;
 import lombok.val;
 import org.ojai.Document;
 import org.ojai.DocumentStream;

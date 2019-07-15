@@ -1,5 +1,9 @@
-package com.github.anicolaspp.parsers;
+package com.github.anicolaspp.parsers.update;
 
+import com.github.anicolaspp.parsers.ChainParser;
+import com.github.anicolaspp.parsers.ParserQueryResult;
+import com.github.anicolaspp.parsers.QueryFunctions;
+import com.github.anicolaspp.parsers.insert.InsertStatementParser;
 import lombok.val;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.update.Update;

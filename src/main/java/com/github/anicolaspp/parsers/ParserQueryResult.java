@@ -1,5 +1,6 @@
 package com.github.anicolaspp.parsers;
 
+import com.github.anicolaspp.parsers.select.SelectField;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,8 +27,3 @@ public class ParserQueryResult {
     private ParserType type;
 }
 
-enum ParserType {
-    SELECT,
-    UNKNOWN,
-    INSERT
-}

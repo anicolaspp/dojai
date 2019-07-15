@@ -1,4 +1,4 @@
-package com.github.anicolaspp.parsers;
+package com.github.anicolaspp.parsers.select;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
