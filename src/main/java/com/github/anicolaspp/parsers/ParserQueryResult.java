@@ -28,5 +28,6 @@ public class ParserQueryResult {
 
 enum ParserType {
     SELECT,
-    UNKNOWN
+    UNKNOWN,
+    INSERT
 }

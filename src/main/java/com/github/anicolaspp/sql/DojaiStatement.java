@@ -1,6 +1,8 @@
 package com.github.anicolaspp.sql;
 
 import com.github.anicolaspp.parsers.ChainParser;
+import com.github.anicolaspp.parsers.InsertParserResult;
+import com.github.anicolaspp.parsers.QueryFunctions;
 import lombok.val;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 
@@ -21,6 +23,7 @@ public class DojaiStatement implements Statement {
         this.dojaiConnection = dojaiConnection;
     }
 
+
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
         try {
@@ -28,7 +31,7 @@ public class DojaiStatement implements Statement {
 
             val query = ChainParser.build(ojaiConnection).parse(statement);
 
-            val tableName = query.getTable().replace("`","");
+            val tableName = QueryFunctions.getTableNameFrom(query.getTable());
 
             val store = ojaiConnection.getStore(tableName);
 
@@ -43,7 +46,23 @@ public class DojaiStatement implements Statement {
 
     @Override
     public int executeUpdate(String sql) throws SQLException {
-        return 0;
+        try {
+
+            val statement = CCJSqlParserUtil.parse(sql);
+
+            val query = (InsertParserResult) ChainParser.build(ojaiConnection).parse(statement);
+
+            val tableName = QueryFunctions.getTableNameFrom(query.getTable());
+
+            val store = ojaiConnection.getStore(tableName);
+
+            query.getDocuments().forEach(store::insert);
+
+            return query.getDocuments().size();
+
+        } catch (Exception e) {
+            throw new SQLException("Error Inserting", e);
+        }
     }
 
     @Override

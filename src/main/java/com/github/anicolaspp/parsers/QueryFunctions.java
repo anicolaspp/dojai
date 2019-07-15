@@ -39,4 +39,8 @@ public class QueryFunctions {
             query.limit(((LongValue) theLimit).getValue());
         }
     }
+
+    public static String getTableNameFrom(String systemTableName) {
+        return systemTableName.replace("`","");
+    }
 }

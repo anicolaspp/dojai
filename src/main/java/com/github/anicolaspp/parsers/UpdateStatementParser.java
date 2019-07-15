@@ -15,7 +15,7 @@ public class UpdateStatementParser implements ChainParser {
 
     @Override
     public ChainParser next() {
-        return new UnsupportedStatementParser(connection);
+        return new InsertStatementParser(connection);
     }
 
     @Override
@@ -51,3 +51,4 @@ public class UpdateStatementParser implements ChainParser {
         return null;
     }
 }
+
