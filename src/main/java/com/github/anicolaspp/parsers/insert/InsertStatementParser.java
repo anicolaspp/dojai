@@ -59,9 +59,9 @@ public class InsertStatementParser implements ChainParser {
 
             QueryResult documents = runSelect(insert);
 
-            Stream<Document> documentsToInsert = StreamSupport.stream(documents.spliterator(), false)
+            Stream<Document> documentsToInsert = StreamSupport
+                    .stream(documents.spliterator(), false)
                     .map(document -> {
-
                         Map<String, Object> doc = new HashMap<>();
 
                         for (Column column : columns) {
@@ -70,9 +70,7 @@ public class InsertStatementParser implements ChainParser {
                             doc.put(column.getColumnName(), value);
                         }
 
-                        if (doc.get("_id") == null) {
-                            doc.put("_id", String.valueOf(random.nextGaussian()));
-                        }
+                        validateId(random, doc);
 
                         return connection.newDocument(doc);
                     });
@@ -104,12 +102,8 @@ public class InsertStatementParser implements ChainParser {
                 doc.put(columns.get(i).getColumnName(), value);
             }
 
-            if (doc.get("_id") == null) {
-                doc.put("_id", String.valueOf(random.nextGaussian()));
-            }
-
+            validateId(random, doc);
             val document = connection.newDocument(doc);
-            System.out.println(document);
 
             return new InsertParserResult(
                     null, QueryFunctions.getTableName(insert),
@@ -118,6 +112,12 @@ public class InsertStatementParser implements ChainParser {
                     ParserType.INSERT,
                     Collections.singletonList(document).iterator()
             );
+        }
+    }
+
+    private void validateId(Random random, Map<String, Object> doc) {
+        if (doc.get("_id") == null) {
+            doc.put("_id", String.valueOf(random.nextGaussian()));
         }
     }
 
@@ -145,5 +145,3 @@ public class InsertStatementParser implements ChainParser {
         return Values.NULL;
     }
 }
-
-

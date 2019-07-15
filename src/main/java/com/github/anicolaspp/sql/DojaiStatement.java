@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.Iterator;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -31,6 +30,10 @@ public class DojaiStatement implements Statement {
     public ResultSet executeQuery(String sql) throws SQLException {
         try {
             val statement = CCJSqlParserUtil.parse(sql);
+
+            if (statement instanceof InsertParserResult) {
+                throw new SQLException("Use **executeUpdate** to insert new records");
+            }
 
             val query = ChainParser.build(ojaiConnection).parse(statement);
 
@@ -50,9 +53,7 @@ public class DojaiStatement implements Statement {
     @Override
     public int executeUpdate(String sql) throws SQLException {
         try {
-
             val statement = CCJSqlParserUtil.parse(sql);
-
 
             val query = (InsertParserResult) ChainParser.build(ojaiConnection).parse(statement);
 
@@ -61,10 +62,6 @@ public class DojaiStatement implements Statement {
             val store = ojaiConnection.getStore(tableName);
 
             return runInserts(query.getDocuments(), store);
-//
-//            query.getDocuments().forEachRemaining(store::insert);
-//
-//            return query.getDocuments().size();
 
         } catch (Exception e) {
             throw new SQLException("Error Inserting", e);
