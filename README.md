@@ -40,10 +40,70 @@ public class App {
 }
 ```
 
+We can also do `INSERT INTO` that works as you might expect. 
+
+```java
+import lombok.val;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+private static void testInsert(Connection connection) throws SQLException {
+
+    String sql = "INSERT INTO `/user/mapr/tables/t2` (_id, name, age) select name as n from `/user/mapr/tables/t1`";
+
+    val statement = connection.createStatement();
+
+    statement.executeUpdate(sql);
+}
+```
+
+Notice that we are selecting data from `/user/mapr/tables/t1` and writing to `/user/mapr/tables/t2`.
+
+We can also insert static values in the following way.
+
+```java
+import lombok.val;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+private static void testInsertValues(Connection connection) throws SQLException {
+
+    String sql = "INSERT INTO `/user/mapr/tables/users` (_id, name, age) Values ("001", "nick", 30)";
+
+    val statement = connection.createStatement();
+
+    statement.executeUpdate(sql);
+}
+```
+
+Of course we could use this to insert data in a dynamic way. 
+
+```java
+import lombok.val;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+private static void testInsertFromStream(Connection connection, Stream<User> users) throws SQLException {
+
+    String sql = "INSERT INTO `/user/mapr/tables/users` (_id, name, age) Values (%s, %s, %d)";
+
+    users
+        .map(user -> String.format(sql, user.getId(), user.getName(), user.getAge())
+        .map(sqlToRun -> connection.createStatement().executeUpdate(sqlToRun))
+        .forEach(System.out::println)
+}
+```
+
 ### Limitations
 
 At this early stage 
 
 - Not Start (`*`) schema allowed. Queries should use `select column1 [,<column2>, ...] ....`.
 - No query should go across tables (`join`, etc...).
-- Only `select` queries are in place at this point, we are adding more soon. 
+- Only `select` and `insert into` queries are in place at this point, we are adding more soon. 
