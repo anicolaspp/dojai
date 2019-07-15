@@ -24,23 +24,19 @@ public class App {
 
         val statement = connection.createStatement();
 
-        val result = statement.executeQuery("select name as n, age from `/user/mapr/tables/dojai` where n = 'ivan' AND age = 30");
+        val result = statement.executeQuery("select name as n, age from `/user/mapr/tables/dojai`");
 
 //        statement.executeQuery("update user.mapr.some_data set name = 'hehe'");
 
         while (result.next()) {
             System.out.println(result.getString(0));
             System.out.println(result.getString(1));
-//            System.out.println(result.getString("n"));
-//            System.out.println(result.getString("age"));
         }
-
-        System.out.println(statement);
     }
 
     private static void testInsert(Connection connection) throws SQLException {
 
-        String sql = "INSERT INTO `/user/mapr/tables/dojai` (_id, name, age) values (\"000001\", \"kandi\", 22)";
+        String sql = "INSERT INTO `/user/mapr/tables/dojai` (_id, name, age) select name as n from `/user/mapr/tables/t1`";
 
         val statement = connection.createStatement();
 

@@ -2,15 +2,19 @@ package com.github.anicolaspp.sql;
 
 import com.github.anicolaspp.parsers.ChainParser;
 import com.github.anicolaspp.parsers.insert.InsertParserResult;
-import com.github.anicolaspp.parsers.QueryFunctions;
 import lombok.val;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import org.ojai.Document;
+import org.ojai.store.DocumentStore;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
+import java.util.Iterator;
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class DojaiStatement implements Statement {
@@ -22,7 +26,6 @@ public class DojaiStatement implements Statement {
         this.ojaiConnection = ojaiConnection;
         this.dojaiConnection = dojaiConnection;
     }
-
 
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
@@ -50,19 +53,39 @@ public class DojaiStatement implements Statement {
 
             val statement = CCJSqlParserUtil.parse(sql);
 
+
             val query = (InsertParserResult) ChainParser.build(ojaiConnection).parse(statement);
 
             val tableName = query.getTable();
 
             val store = ojaiConnection.getStore(tableName);
 
-            query.getDocuments().forEach(store::insert);
-
-            return query.getDocuments().size();
+            return runInserts(query.getDocuments(), store);
+//
+//            query.getDocuments().forEachRemaining(store::insert);
+//
+//            return query.getDocuments().size();
 
         } catch (Exception e) {
             throw new SQLException("Error Inserting", e);
         }
+    }
+
+    private int runInserts(Iterator<Document> documents, DocumentStore store) {
+        AtomicInteger count = new AtomicInteger();
+
+        documents.forEachRemaining(document -> {
+
+            System.out.println(document);
+
+            store.insert(document);
+
+            count.addAndGet(1);
+        });
+
+        store.flush();
+
+        return count.get();
     }
 
     @Override

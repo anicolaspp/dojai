@@ -8,15 +8,16 @@ import lombok.Setter;
 import org.ojai.Document;
 import org.ojai.store.Query;
 
+import java.util.Iterator;
 import java.util.List;
 
 @Getter
 @Setter
 public class InsertParserResult extends ParserQueryResult {
 
-    private List<Document> documents;
+    private Iterator<Document> documents;
 
-    public InsertParserResult(Query query, String table, List<SelectField> selectFields, Boolean successful, ParserType type, List<Document> documents) {
+    public InsertParserResult(Query query, String table, List<SelectField> selectFields, Boolean successful, ParserType type, Iterator<Document> documents) {
         super(query, table, selectFields, successful, type);
         this.documents = documents;
     }

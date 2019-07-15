@@ -4,6 +4,7 @@ import com.github.anicolaspp.parsers.ChainParser;
 import com.github.anicolaspp.parsers.ParserQueryResult;
 import com.github.anicolaspp.parsers.ParserType;
 import com.github.anicolaspp.parsers.QueryFunctions;
+import com.github.anicolaspp.parsers.select.SelectStatementParser;
 import com.github.anicolaspp.parsers.unknown.UnsupportedStatementParser;
 import com.mapr.ojai.store.impl.Values;
 import lombok.val;
@@ -13,12 +14,17 @@ import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.insert.Insert;
+import org.ojai.Document;
 import org.ojai.Value;
 import org.ojai.store.Connection;
+import org.ojai.store.QueryResult;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class InsertStatementParser implements ChainParser {
 
@@ -36,6 +42,8 @@ public class InsertStatementParser implements ChainParser {
 
     @Override
     public ParserQueryResult getQueryFrom(Statement statement) {
+        Random random = new Random();
+
         if (!(statement instanceof Insert)) {
             return ParserQueryResult
                     .builder()
@@ -46,41 +54,83 @@ public class InsertStatementParser implements ChainParser {
         val insert = (Insert) statement;
 
         val columns = insert.getColumns();
-        val values = (ExpressionList )insert.getItemsList();
 
-        if (columns.size() != values.getExpressions().size()) {
-            return ParserQueryResult
-                    .builder()
-                    .successful(false)
-                    .build();
+        if (insert.getSelect() != null) {
+
+            QueryResult documents = runSelect(insert);
+
+            Stream<Document> documentsToInsert = StreamSupport.stream(documents.spliterator(), false)
+                    .map(document -> {
+
+                        Map<String, Object> doc = new HashMap<>();
+
+                        for (Column column : columns) {
+                            val value = document.getValue(column.getColumnName());
+
+                            doc.put(column.getColumnName(), value);
+                        }
+
+                        if (doc.get("_id") == null) {
+                            doc.put("_id", String.valueOf(random.nextGaussian()));
+                        }
+
+                        return connection.newDocument(doc);
+                    });
+
+            return new InsertParserResult(
+                    null,
+                    QueryFunctions.getTableName(insert),
+                    null,
+                    true,
+                    ParserType.INSERT,
+                    documentsToInsert.iterator()
+            );
+        } else {
+            val values = (ExpressionList) insert.getItemsList();
+
+            if (columns.size() != values.getExpressions().size()) {
+                return ParserQueryResult
+                        .builder()
+                        .successful(false)
+                        .build();
+            }
+
+            Map<String, Object> doc = new HashMap<>();
+
+            for (int i = 0; i < columns.size(); i++) {
+
+                val value = fromExpression(values.getExpressions().get(i));
+
+                doc.put(columns.get(i).getColumnName(), value);
+            }
+
+            if (doc.get("_id") == null) {
+                doc.put("_id", String.valueOf(random.nextGaussian()));
+            }
+
+            val document = connection.newDocument(doc);
+            System.out.println(document);
+
+            return new InsertParserResult(
+                    null, QueryFunctions.getTableName(insert),
+                    null,
+                    true,
+                    ParserType.INSERT,
+                    Collections.singletonList(document).iterator()
+            );
         }
+    }
 
-        Map<String, Object> doc = new HashMap<>();
+    private QueryResult runSelect(Insert insert) {
+        val select = insert.getSelect();
 
-        for (int i = 0; i < columns.size(); i++) {
+        ParserQueryResult query = new SelectStatementParser(connection).getQueryFrom(select);
 
-            val col = columns.get(i);
-            val value = fromExpression(values.getExpressions().get(i));
+        val tableName = query.getTable();
 
-            System.out.println(col);
-            System.out.println(value);
+        val store = connection.getStore(tableName);
 
-
-            doc.put(col.getColumnName(), value);
-        }
-
-        val document = connection.newDocument(doc);
-        System.out.println(document);
-
-        ParserQueryResult result = new InsertParserResult(
-                null, QueryFunctions.getTableName(insert),
-                null,
-                true,
-                ParserType.INSERT,
-                Collections.singletonList(document)
-        );
-
-        return result;
+        return store.find(query.getQuery());
     }
 
     private Value fromExpression(Expression expression) {
