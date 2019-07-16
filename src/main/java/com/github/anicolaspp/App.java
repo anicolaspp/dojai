@@ -15,9 +15,8 @@ public class App {
 
         val connection = DriverManager.getConnection("dojai:mapr:");
 
-//        testInsert(connection);
-//        testSelect(connection);
-
+        testInsert(connection);
+        testSelect(connection);
         testDeleteAll(connection);
         testDeleteSome(connection);
     }
