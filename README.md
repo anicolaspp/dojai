@@ -128,4 +128,4 @@ At this early stage
 
 - Not Start (`*`) schema allowed. Queries should use `select column1 [,<column2>, ...] ....`.
 - No query should go across tables (`join`, etc...).
-- Only `select` and `insert into` queries are in place at this point, we are adding more soon. 
+- Only `select`, `insert into` and `delete` queries are in place at this point, we are adding more soon. 
