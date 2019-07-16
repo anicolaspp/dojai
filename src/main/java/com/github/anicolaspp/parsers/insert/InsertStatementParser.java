@@ -7,6 +7,7 @@ import com.github.anicolaspp.parsers.QueryFunctions;
 import com.github.anicolaspp.parsers.delete.DeleteStatementParser;
 import com.github.anicolaspp.parsers.select.SelectStatementParser;
 import com.mapr.ojai.store.impl.Values;
+import javafx.util.Pair;
 import lombok.val;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
@@ -20,9 +21,11 @@ import org.ojai.Value;
 import org.ojai.store.Connection;
 import org.ojai.store.QueryResult;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -61,19 +64,7 @@ public class InsertStatementParser implements ChainParser {
 
             Stream<Document> documentsToInsert = StreamSupport
                     .stream(documents.spliterator(), false)
-                    .map(document -> {
-                        Map<String, Object> doc = new HashMap<>();
-
-                        for (Column column : columns) {
-                            val value = document.getValue(column.getColumnName());
-
-                            doc.put(column.getColumnName(), value);
-                        }
-
-                        validateId(random, doc);
-
-                        return connection.newDocument(doc);
-                    });
+                    .map(document -> getDocumentToInsert(random, columns, document));
 
             return new InsertParserResult(
                     null,
@@ -93,14 +84,10 @@ public class InsertStatementParser implements ChainParser {
                         .build();
             }
 
-            Map<String, Object> doc = new HashMap<>();
-
-            for (int i = 0; i < columns.size(); i++) {
-
-                val value = fromExpression(values.getExpressions().get(i));
-
-                doc.put(columns.get(i).getColumnName(), value);
-            }
+            Map<String, Object> doc = IntStream
+                    .range(0, columns.size())
+                    .mapToObj(i -> new Pair<>(columns.get(i).getColumnName(), fromExpression(values.getExpressions().get(i))))
+                    .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
 
             validateId(random, doc);
             val document = connection.newDocument(doc);
@@ -113,6 +100,25 @@ public class InsertStatementParser implements ChainParser {
                     Stream.of(document)
             );
         }
+    }
+
+    private Document getDocumentToInsert(Random random, List<Column> columns, Document document) {
+        Map<String, Object> doc = getDoc(columns, document);
+
+        validateId(random, doc);
+
+        return connection.newDocument(doc);
+    }
+
+    private Map<String, Object> getDoc(List<Column> columns, Document document) {
+        return columns
+                .stream()
+                .map(column -> {
+                    val value = document.getValue(column.getColumnName());
+
+                    return new Pair<>(column.getColumnName(), value);
+                })
+                .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
     }
 
     private void validateId(Random random, Map<String, Object> doc) {
