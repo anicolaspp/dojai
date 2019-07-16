@@ -4,7 +4,6 @@ import com.github.anicolaspp.parsers.ChainParser;
 import com.github.anicolaspp.parsers.ParserQueryResult;
 import com.github.anicolaspp.parsers.ParserType;
 import com.github.anicolaspp.parsers.QueryFunctions;
-import com.github.anicolaspp.parsers.WhereParser;
 import com.github.anicolaspp.parsers.select.SelectField;
 import com.github.anicolaspp.parsers.unknown.UnsupportedStatementParser;
 import lombok.val;
@@ -42,20 +41,17 @@ public class DeleteStatementParser implements ChainParser {
 
         val delete = (Delete) statement;
 
-        val queryCondition = new WhereParser(
-                connection,
-                Collections.singletonList(new SelectField("_id", "_id")))
-                .parse(delete.getWhere());
-
-
         String table = QueryFunctions.getTableName(delete);
 
-        val query = connection.newQuery().select("_id").where(queryCondition).build();
+        val query = connection
+                .newQuery()
+                .select("_id")
+                .where(QueryFunctions.getQueryConditionFrom(delete.getWhere(), connection, Collections.singletonList(new SelectField("_id", "_id"))));
 
         val store = connection.getStore(table);
 
         val ids = StreamSupport
-                .stream(store.find(query).spliterator(), false)
+                .stream(store.find(query.build()).spliterator(), false)
                 .map(Document::getId);
 
         return new DeleteParserResult(

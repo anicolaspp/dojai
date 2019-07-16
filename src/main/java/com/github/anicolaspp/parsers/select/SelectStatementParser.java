@@ -15,8 +15,9 @@ import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import org.ojai.store.Connection;
 import org.ojai.store.Query;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class SelectStatementParser implements ChainParser {
 
@@ -56,41 +57,47 @@ public class SelectStatementParser implements ChainParser {
         }
 
         val plainSelectBody = (PlainSelect) select.getSelectBody();
-        val query = connection.newQuery();
-
-        val schema = addSelect(plainSelectBody, query);
-        QueryFunctions.addWhere(plainSelectBody.getWhere(), query, connection, schema);
-        QueryFunctions.addLimit(plainSelectBody.getLimit(), query);
+        val schema = getSchemaFrom(plainSelectBody);
 
         String table = QueryFunctions.getTableName(select);
+
+        val query = QueryFunctions
+                .addLimit(plainSelectBody.getLimit(), getInitialQuery(plainSelectBody, schema))
+                .build();
 
         return ParserQueryResult
                 .builder()
                 .type(ParserType.SELECT)
-                .query(query.build())
+                .query(query)
                 .table(table)
                 .selectFields(schema)
                 .successful(true)
                 .build();
     }
 
-    private List<SelectField> addSelect(PlainSelect plainSelectBody, Query query) {
-        List<SelectField> fields = new ArrayList<>();
+    private Query getInitialQuery(PlainSelect plainSelectBody, List<SelectField> schema) {
+        return connection
+                .newQuery()
+                .select(schema.stream().map(SelectField::getName).toArray(String[]::new))
+                .where(QueryFunctions.getQueryConditionFrom(plainSelectBody.getWhere(), connection, schema));
+    }
 
-        plainSelectBody
+    private List<SelectField> getSchemaFrom(PlainSelect plainSelectBody) {
+        return plainSelectBody
                 .getSelectItems()
-                .forEach(selectItem -> {
-
+                .stream()
+                .map(selectItem -> {
                     if (selectItem instanceof SelectExpressionItem) {
                         String columnName = ((Column) ((SelectExpressionItem) selectItem).getExpression()).getColumnName();
-                        String alias = getAliasName(((SelectExpressionItem) selectItem).getAlias()); //.getAlias().getName();
+                        String alias = getAliasName(((SelectExpressionItem) selectItem).getAlias());
 
-                        query.select(columnName);
-                        fields.add(new SelectField(columnName, alias));
+                        return new SelectField(columnName, alias);
+                    } else {
+                        return null;
                     }
-                });
-
-        return fields;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     private String getAliasName(Alias alias) {

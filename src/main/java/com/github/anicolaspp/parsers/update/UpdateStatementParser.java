@@ -35,7 +35,7 @@ public class UpdateStatementParser implements ChainParser {
         val update = (Update) statement;
         val query = connection.newQuery();
 
-        QueryFunctions.addWhere(update.getWhere(), query, connection, null);
+        QueryFunctions.getQueryConditionFrom(update.getWhere(), connection, null);
         QueryFunctions.addLimit(update.getLimit(), query);
 
         if (update.getColumns() != null && update.getColumns().size() > 0) {

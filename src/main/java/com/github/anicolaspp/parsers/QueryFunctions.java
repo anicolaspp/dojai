@@ -9,6 +9,7 @@ import net.sf.jsqlparser.statement.select.Limit;
 import net.sf.jsqlparser.util.TablesNamesFinder;
 import org.ojai.store.Connection;
 import org.ojai.store.Query;
+import org.ojai.store.QueryCondition;
 
 import java.util.List;
 
@@ -23,21 +24,23 @@ public class QueryFunctions {
         return tablesNamesFinder.getTableList(statement).get(0).replace("`","");
     }
 
-    public static void addWhere(Expression where, Query query, Connection connection, List<SelectField> schema) {
-        val queryCondition = new WhereParser(connection, schema).parse(where);
-
-        query.where(queryCondition);
+    public static QueryCondition getQueryConditionFrom(Expression where, Connection connection, List<SelectField> schema) {
+        return new WhereParser(connection, schema).parse(where);
     }
 
-    public static void addLimit(Limit limit, Query query) {
+    public static Query addLimit(Limit limit, Query query) {
         if (limit == null) {
-            return;
+            return query;
         }
 
         val theLimit = limit.getRowCount();
 
         if (theLimit instanceof LongValue) {
             query.limit(((LongValue) theLimit).getValue());
+
+            return query;
         }
+
+        return query;
     }
 }
