@@ -102,6 +102,26 @@ private static void testInsertFromStream(Connection connection, Stream<User> use
 }
 ```
 
+Deletes can be executed in the following way.
+
+```java
+ private static void testDeleteAll(Connection connection) throws SQLException {
+        String sql = "DELETE FROM `/user/mapr/tables/dojai`";
+
+        val statement = connection.createStatement();
+
+        statement.executeUpdate(sql);
+    }
+
+    private static void testDeleteSome(Connection connection) throws SQLException {
+        String sql = "DELETE FROM `/user/mapr/tables/t1` WHERE age = 40";
+
+        val statement = connection.createStatement();
+
+        statement.executeUpdate(sql);
+    }
+```
+
 ### Limitations
 
 At this early stage 
