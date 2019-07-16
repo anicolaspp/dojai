@@ -1,19 +1,21 @@
 package com.github.anicolaspp.sql;
 
 import com.github.anicolaspp.parsers.ChainParser;
+import com.github.anicolaspp.parsers.delete.DeleteParserResult;
 import com.github.anicolaspp.parsers.insert.InsertParserResult;
 import lombok.val;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
-import org.ojai.Document;
-import org.ojai.store.DocumentStore;
+import net.sf.jsqlparser.statement.delete.Delete;
+import net.sf.jsqlparser.statement.insert.Insert;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
-import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 
 public class DojaiStatement implements Statement {
@@ -31,8 +33,8 @@ public class DojaiStatement implements Statement {
         try {
             val statement = CCJSqlParserUtil.parse(sql);
 
-            if (statement instanceof InsertParserResult) {
-                throw new SQLException("Use **executeUpdate** to insert new records");
+            if (statement instanceof Insert || statement instanceof Delete) {
+                throw new SQLException("Use **executeUpdate** for this type of query");
             }
 
             val query = ChainParser.build(ojaiConnection).parse(statement);
@@ -55,32 +57,39 @@ public class DojaiStatement implements Statement {
         try {
             val statement = CCJSqlParserUtil.parse(sql);
 
-            val query = (InsertParserResult) ChainParser.build(ojaiConnection).parse(statement);
+            val query = ChainParser.build(ojaiConnection).parse(statement);
 
-            val tableName = query.getTable();
+            if (query instanceof InsertParserResult) {
+                val tableName = query.getTable();
 
-            val store = ojaiConnection.getStore(tableName);
+                val store = ojaiConnection.getStore(tableName);
 
-            return runInserts(query.getDocuments(), store);
+                return runConsumerOn(((InsertParserResult) query).getDocuments(), store::insert);
+            }
+
+            if (query instanceof DeleteParserResult) {
+                val tableName = query.getTable();
+
+                val store = ojaiConnection.getStore(tableName);
+
+                return runConsumerOn(((DeleteParserResult) query).getIds(), store::delete);
+            }
+
+            return 0;
 
         } catch (Exception e) {
             throw new SQLException("Error Inserting", e);
         }
     }
 
-    private int runInserts(Iterator<Document> documents, DocumentStore store) {
+    private <A> int runConsumerOn(Stream<A> values, Consumer<A> consumer) {
         AtomicInteger count = new AtomicInteger();
 
-        documents.forEachRemaining(document -> {
-
-            System.out.println(document);
-
-            store.insert(document);
+        values.forEach(value -> {
+            consumer.accept(value);
 
             count.addAndGet(1);
         });
-
-        store.flush();
 
         return count.get();
     }

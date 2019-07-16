@@ -20,12 +20,12 @@ public class WhereParser {
     private Connection connection;
     private List<SelectField> schema;
 
-    WhereParser(Connection connection, List<SelectField> schema) {
+    public WhereParser(Connection connection, List<SelectField> schema) {
         this.connection = connection;
         this.schema = schema;
     }
 
-    QueryCondition parse(Expression where) {
+    public QueryCondition parse(Expression where) {
 
         if (where instanceof EqualsTo) {
             return parseEqualsTo((EqualsTo) where);

@@ -15,8 +15,11 @@ public class App {
 
         val connection = DriverManager.getConnection("dojai:mapr:");
 
-        testInsert(connection);
-        testSelect(connection);
+//        testInsert(connection);
+//        testSelect(connection);
+
+        testDeleteAll(connection);
+        testDeleteSome(connection);
     }
 
     private static void testSelect(Connection connection) throws SQLException {
@@ -37,6 +40,22 @@ public class App {
     private static void testInsert(Connection connection) throws SQLException {
 
         String sql = "INSERT INTO `/user/mapr/tables/dojai` (_id, name, age) select name as n from `/user/mapr/tables/t1`";
+
+        val statement = connection.createStatement();
+
+        statement.executeUpdate(sql);
+    }
+
+    private static void testDeleteAll(Connection connection) throws SQLException {
+        String sql = "DELETE FROM `/user/mapr/tables/dojai`";
+
+        val statement = connection.createStatement();
+
+        statement.executeUpdate(sql);
+    }
+
+    private static void testDeleteSome(Connection connection) throws SQLException {
+        String sql = "DELETE FROM `/user/mapr/tables/t1` WHERE age = 40";
 
         val statement = connection.createStatement();
 

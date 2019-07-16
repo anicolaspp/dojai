@@ -4,8 +4,8 @@ import com.github.anicolaspp.parsers.ChainParser;
 import com.github.anicolaspp.parsers.ParserQueryResult;
 import com.github.anicolaspp.parsers.ParserType;
 import com.github.anicolaspp.parsers.QueryFunctions;
+import com.github.anicolaspp.parsers.delete.DeleteStatementParser;
 import com.github.anicolaspp.parsers.select.SelectStatementParser;
-import com.github.anicolaspp.parsers.unknown.UnsupportedStatementParser;
 import com.mapr.ojai.store.impl.Values;
 import lombok.val;
 import net.sf.jsqlparser.expression.Expression;
@@ -19,7 +19,6 @@ import org.ojai.Value;
 import org.ojai.store.Connection;
 import org.ojai.store.QueryResult;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -37,7 +36,7 @@ public class InsertStatementParser implements ChainParser {
 
     @Override
     public ChainParser next() {
-        return new UnsupportedStatementParser(connection);
+        return new DeleteStatementParser(connection);
     }
 
     @Override
@@ -81,7 +80,7 @@ public class InsertStatementParser implements ChainParser {
                     null,
                     true,
                     ParserType.INSERT,
-                    documentsToInsert.iterator()
+                    documentsToInsert
             );
         } else {
             val values = (ExpressionList) insert.getItemsList();
@@ -110,7 +109,7 @@ public class InsertStatementParser implements ChainParser {
                     null,
                     true,
                     ParserType.INSERT,
-                    Collections.singletonList(document).iterator()
+                    Stream.of(document)
             );
         }
     }
@@ -145,3 +144,4 @@ public class InsertStatementParser implements ChainParser {
         return Values.NULL;
     }
 }
+
