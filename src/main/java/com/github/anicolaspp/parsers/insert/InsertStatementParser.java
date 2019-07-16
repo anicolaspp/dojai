@@ -14,6 +14,7 @@ import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.insert.Insert;
+import net.sf.jsqlparser.statement.select.Select;
 import org.ojai.Document;
 import org.ojai.Value;
 import org.ojai.store.Connection;
@@ -56,7 +57,7 @@ public class InsertStatementParser implements ChainParser {
 
         if (insert.getSelect() != null) {
 
-            QueryResult documents = runSelect(insert);
+            QueryResult documents = runSelect(insert.getSelect());
 
             Stream<Document> documentsToInsert = StreamSupport
                     .stream(documents.spliterator(), false)
@@ -120,9 +121,7 @@ public class InsertStatementParser implements ChainParser {
         }
     }
 
-    private QueryResult runSelect(Insert insert) {
-        val select = insert.getSelect();
-
+    private QueryResult runSelect(Select select) {
         ParserQueryResult query = new SelectStatementParser(connection).getQueryFrom(select);
 
         val tableName = query.getTable();
