@@ -30,6 +30,7 @@ import java.util.stream.StreamSupport;
 public class InsertStatementParser implements ChainParser {
 
     private Connection connection;
+    private static Random RND = new Random();
 
     public InsertStatementParser(Connection connection) {
 
@@ -43,7 +44,6 @@ public class InsertStatementParser implements ChainParser {
 
     @Override
     public ParserQueryResult getQueryFrom(Statement statement) {
-        Random random = new Random();
 
         if (!(statement instanceof Insert)) {
             return ParserQueryResult
@@ -62,7 +62,7 @@ public class InsertStatementParser implements ChainParser {
 
             Stream<Document> documentsToInsert = StreamSupport
                     .stream(documents.spliterator(), false)
-                    .map(document -> getDocumentToInsert(random, columns, document));
+                    .map(document -> getDocumentWithValidId(getDoc(columns, document)));
 
             return new InsertParserResult(
                     null,
@@ -87,15 +87,12 @@ public class InsertStatementParser implements ChainParser {
                     .mapToObj(createDocPair(columns, values))
                     .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
 
-            validateId(random, doc);
-            val document = connection.newDocument(doc);
-
             return new InsertParserResult(
                     null, QueryFunctions.getTableName(insert),
                     null,
                     true,
                     ParserType.INSERT,
-                    Stream.of(document)
+                    Stream.of(getDocumentWithValidId(doc))
             );
         }
     }
@@ -106,12 +103,10 @@ public class InsertStatementParser implements ChainParser {
                 QueryFunctions.valueFromExpression(values.getExpressions().get(i)));
     }
 
-    private Document getDocumentToInsert(Random random, List<Column> columns, Document document) {
-        Map<String, Object> doc = getDoc(columns, document);
+    private Document getDocumentWithValidId(Map<String, Object> rawDocument) {
+        validateId(rawDocument);
 
-        validateId(random, doc);
-
-        return connection.newDocument(doc);
+        return connection.newDocument(rawDocument);
     }
 
     private Map<String, Object> getDoc(List<Column> columns, Document document) {
@@ -125,9 +120,9 @@ public class InsertStatementParser implements ChainParser {
                 .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
     }
 
-    private void validateId(Random random, Map<String, Object> doc) {
+    private void validateId(Map<String, Object> doc) {
         if (doc.get("_id") == null) {
-            doc.put("_id", String.valueOf(random.nextGaussian()));
+            doc.put("_id", String.valueOf(RND.nextGaussian()));
         }
     }
 
