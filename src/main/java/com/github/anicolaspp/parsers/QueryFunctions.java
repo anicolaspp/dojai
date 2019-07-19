@@ -1,15 +1,23 @@
 package com.github.anicolaspp.parsers;
 
 import com.github.anicolaspp.parsers.select.SelectField;
+import com.mapr.ojai.store.impl.Values;
 import lombok.val;
+import net.sf.jsqlparser.expression.DateValue;
+import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.TimestampValue;
+import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.Limit;
 import net.sf.jsqlparser.util.TablesNamesFinder;
+import org.ojai.Value;
 import org.ojai.store.Connection;
 import org.ojai.store.Query;
 import org.ojai.store.QueryCondition;
+import org.ojai.types.ODate;
+import org.ojai.types.OTimestamp;
 
 import java.util.List;
 
@@ -42,5 +50,29 @@ public class QueryFunctions {
         }
 
         return query;
+    }
+
+    public static Value valueFromExpression(Expression expression) {
+        if (expression instanceof Column) {
+            return new Values.StringValue(((Column) expression).getColumnName());
+        }
+
+        if (expression instanceof LongValue) {
+            return new Values.LongValue(((LongValue) expression).getValue());
+        }
+
+        if (expression instanceof DoubleValue) {
+            return new Values.DoubleValue(((DoubleValue) expression).getValue());
+        }
+
+        if (expression instanceof DateValue) {
+            return new Values.DateValue(new ODate(((DateValue) expression).getValue()));
+        }
+
+        if (expression instanceof TimestampValue) {
+            return new Values.TimestampValue(new OTimestamp(((TimestampValue) expression).getValue().getTime()));
+        }
+
+        return Values.NULL;
     }
 }
