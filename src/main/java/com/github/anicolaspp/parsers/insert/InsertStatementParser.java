@@ -9,8 +9,11 @@ import com.github.anicolaspp.parsers.select.SelectStatementParser;
 import com.mapr.ojai.store.impl.Values;
 import javafx.util.Pair;
 import lombok.val;
+import net.sf.jsqlparser.expression.DateValue;
+import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.TimestampValue;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
@@ -20,6 +23,8 @@ import org.ojai.Document;
 import org.ojai.Value;
 import org.ojai.store.Connection;
 import org.ojai.store.QueryResult;
+import org.ojai.types.ODate;
+import org.ojai.types.OTimestamp;
 
 import java.util.List;
 import java.util.Map;
@@ -144,6 +149,18 @@ public class InsertStatementParser implements ChainParser {
 
         if (expression instanceof LongValue) {
             return new Values.LongValue(((LongValue) expression).getValue());
+        }
+
+        if (expression instanceof DoubleValue) {
+            return new Values.DoubleValue(((DoubleValue) expression).getValue());
+        }
+
+        if (expression instanceof DateValue) {
+            return new Values.DateValue(new ODate(((DateValue) expression).getValue()));
+        }
+
+        if (expression instanceof TimestampValue) {
+            return new Values.TimestampValue(new OTimestamp(((TimestampValue) expression).getValue().getTime()));
         }
 
         return Values.NULL;
