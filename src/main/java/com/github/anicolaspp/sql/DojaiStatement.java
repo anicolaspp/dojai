@@ -7,6 +7,7 @@ import lombok.val;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
+import org.ojai.Document;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -16,6 +17,8 @@ import java.sql.Statement;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+
+//import org.ojai.scala.Document;
 
 
 public class DojaiStatement implements Statement {
@@ -39,13 +42,9 @@ public class DojaiStatement implements Statement {
 
             val query = ChainParser.build(ojaiConnection).parse(statement);
 
-            val tableName = query.getTable();
+            Stream<Document> documents = query.getDocuments();
 
-            val store = ojaiConnection.getStore(tableName);
-
-            val documents = store.find(query.getQuery());
-
-            return new DojaiResultSet(documents, query.getSelectFields(), store);
+            return new DojaiResultSet(documents, query.getSelectFields());
 
         } catch (Exception e) {
             throw new SQLException("Error parsing SQL query", e);
@@ -64,7 +63,8 @@ public class DojaiStatement implements Statement {
 
                 val store = ojaiConnection.getStore(tableName);
 
-                return runConsumerOn(((InsertParserResult) query).getDocuments(), store::insert);
+                Consumer<Document> consumer = store::insert;
+                return runConsumerOn(query.getDocuments(), consumer);
             }
 
             if (query instanceof DeleteParserResult) {
@@ -72,7 +72,8 @@ public class DojaiStatement implements Statement {
 
                 val store = ojaiConnection.getStore(tableName);
 
-                return runConsumerOn(((DeleteParserResult) query).getIds(), store::delete);
+                Consumer<Document> consumer = store::delete;
+                return runConsumerOn(query.getDocuments(), consumer);
             }
 
             return 0;

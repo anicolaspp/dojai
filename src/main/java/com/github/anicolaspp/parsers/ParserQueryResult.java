@@ -8,13 +8,14 @@ import lombok.Getter;
 import org.ojai.store.Query;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 
 @Data
 @AllArgsConstructor
 @Builder(toBuilder = true)
 @Getter
-public class ParserQueryResult {
+public class ParserQueryResult<A> {
 
     private Query query;
 
@@ -25,5 +26,7 @@ public class ParserQueryResult {
     private Boolean successful;
 
     private ParserType type;
+
+    private Stream<A> documents;
 }
 

@@ -13,13 +13,10 @@ import java.util.stream.Stream;
 
 @Getter
 @Setter
-public class InsertParserResult extends ParserQueryResult {
-
-    private Stream<Document> documents;
+public class InsertParserResult extends ParserQueryResult<Document> {
 
     public InsertParserResult(Query query, String table, List<SelectField> selectFields, Boolean successful, ParserType type, Stream<Document> documents) {
-        super(query, table, selectFields, successful, type);
-        this.documents = documents;
+        super(query, table, selectFields, successful, type, documents);
     }
 }
 

@@ -3,36 +3,48 @@ package com.github.anicolaspp;
 
 import lombok.val;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class App {
 
-    public static void main(String[] args) throws ClassNotFoundException, SQLException {
+    public static void main(String[] args) throws ClassNotFoundException, SQLException, IOException {
 
         Class.forName("com.github.anicolaspp.sql.DojaiDriver");
 
         val connection = DriverManager.getConnection("dojai:mapr:");
 
-        testInsert(connection);
+//        testSelect(connection);
+        testSubSelects(connection);
+
+//        testInsert(connection);
         testSelect(connection);
-        testDeleteAll(connection);
-        testDeleteSome(connection);
+//        testDeleteSome(connection);
+//        testDeleteAll(connection);
     }
 
     private static void testSelect(Connection connection) throws SQLException {
-        System.out.println(connection.getClass().toString());
-
         val statement = connection.createStatement();
 
-        val result = statement.executeQuery("select name as n, age from `/user/mapr/tables/dojai`");
+        val result = statement.executeQuery("select _id from `/user/mapr/tables/users` limit 10");
 
 //        statement.executeQuery("update user.mapr.some_data set name = 'hehe'");
 
         while (result.next()) {
             System.out.println(result.getString(0));
-            System.out.println(result.getString(1));
+//            System.out.println(result.getString(1));
+        }
+    }
+
+    private static void testSubSelects(Connection connection) throws SQLException, IOException {
+        val statement = connection.createStatement();
+
+        val result = statement.executeQuery("select intKey from (select _id, intKey from `/user/mapr/tables/users` limit 10)");
+
+        while (result.next()) {
+            System.out.println(result.getInt(0));
         }
     }
 

@@ -4,7 +4,9 @@ import com.github.anicolaspp.parsers.ChainParser;
 import com.github.anicolaspp.parsers.ParserQueryResult;
 import com.github.anicolaspp.parsers.ParserType;
 import com.github.anicolaspp.parsers.QueryFunctions;
+import com.github.anicolaspp.parsers.StoreManager;
 import com.github.anicolaspp.parsers.update.UpdateStatementParser;
+import javafx.util.Pair;
 import lombok.val;
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.schema.Column;
@@ -15,13 +17,17 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SubSelect;
+import org.ojai.Document;
 import org.ojai.store.Connection;
 import org.ojai.store.Query;
-import org.ojai.store.QueryResult;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 
 public class SelectStatementParser implements ChainParser {
 
@@ -61,31 +67,6 @@ public class SelectStatementParser implements ChainParser {
         }
 
         return runSelect((PlainSelect) select.getSelectBody());
-//
-//        val plainSelectBody = (PlainSelect) select.getSelectBody();
-//        val from = plainSelectBody.getFromItem();
-//
-//        if (from instanceof SubSelect) {
-//
-//            val result = runSubSelect((SubSelect) from);
-//
-//        } else {
-//
-//            val schema = getSchemaFrom(plainSelectBody);
-//
-//            val query = QueryFunctions
-//                    .addLimit(plainSelectBody.getLimit(), getInitialQuery(plainSelectBody, schema))
-//                    .build();
-//
-//            return ParserQueryResult
-//                    .builder()
-//                    .type(ParserType.SELECT)
-//                    .query(query)
-//                    .table(getTable(from))
-//                    .selectFields(schema)
-//                    .successful(true)
-//                    .build();
-//        }
     }
 
     private ParserQueryResult runSelect(PlainSelect plainSelectBody) {
@@ -95,43 +76,72 @@ public class SelectStatementParser implements ChainParser {
 
             val result = runSubSelect((SubSelect) from);
 
+            Stream<Document> projectedDocs = result
+                    .getDocuments()
+                    .map(document -> getMapDoc(result, document))
+                    .map(connection::newDocument);
 
-
-            return null;
+            return ParserQueryResult
+                    .<Document>builder()
+                    .type(ParserType.SELECT)
+                    .query(result.getQuery())
+                    .table(getTable(from))
+                    .selectFields(getSchemaFrom(plainSelectBody))
+                    .successful(true)
+                    .documents(projectedDocs)
+                    .build();
 
         } else {
-
             val schema = getSchemaFrom(plainSelectBody);
 
             val query = QueryFunctions
                     .addLimit(plainSelectBody.getLimit(), getInitialQuery(plainSelectBody, schema))
                     .build();
 
-            return ParserQueryResult
-                    .builder()
-                    .type(ParserType.SELECT)
+            val store = StoreManager.getStoreFor(getTable(from), connection);
+
+            val documents = StreamSupport.stream(store.find(query).spliterator(), false);
+
+            return ParserQueryResult.<Document>builder()
                     .query(query)
                     .table(getTable(from))
                     .selectFields(schema)
                     .successful(true)
+                    .type(ParserType.SELECT)
+                    .documents(documents)
                     .build();
         }
     }
 
-    private QueryResult runSubSelect(SubSelect from) {
+    private Map<String, Object> getMapDoc(ParserQueryResult<Document> result, Document document) {
+        return result
+                .getSelectFields()
+                .stream()
+                .map(selectField -> {
+                    val value = document.getValue(selectField.getName());
+
+                    return new Pair<>(
+                            selectField.getAlias() == null ? selectField.getName() : selectField.getAlias(),
+                            value);
+
+                })
+                .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+    }
+
+    private ParserQueryResult<Document> runSubSelect(SubSelect from) {
 
         val query = runSelect((PlainSelect) from.getSelectBody());
 
         val store = connection.getStore(query.getTable());
 
-        val documents = store.find(query.getQuery());
+        val documents = StreamSupport.stream(store.find(query.getQuery()).spliterator(), false);
 
-        return documents;
+        return new ParserQueryResult<>(query.getQuery(), query.getTable(), query.getSelectFields(), true, ParserType.SELECT, documents);
     }
 
     private String getTable(FromItem from) {
         if (from instanceof Table) {
-            return ((Table) from).getName();
+            return ((Table) from).getName().replace("`", "");
         } else {
             return "";
         }

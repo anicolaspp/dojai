@@ -13,12 +13,9 @@ import java.util.stream.Stream;
 
 @Getter
 @Setter
-public class DeleteParserResult extends ParserQueryResult {
-
-    private Stream<Value> ids;
+public class DeleteParserResult extends ParserQueryResult<Value> {
 
     public DeleteParserResult(Query query, String table, List<SelectField> selectFields, Boolean successful, ParserType type, Stream<Value> documents) {
-        super(query, table, selectFields, successful, type);
-        this.ids = documents;
+        super(query, table, selectFields, successful, type, documents);
     }
 }

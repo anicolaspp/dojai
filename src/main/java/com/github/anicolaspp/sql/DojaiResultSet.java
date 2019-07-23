@@ -3,8 +3,6 @@ package com.github.anicolaspp.sql;
 import com.github.anicolaspp.parsers.select.SelectField;
 import lombok.val;
 import org.ojai.Document;
-import org.ojai.DocumentStream;
-import org.ojai.store.DocumentStore;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -30,6 +28,7 @@ import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class DojaiResultSet implements ResultSet {
 
@@ -37,16 +36,14 @@ public class DojaiResultSet implements ResultSet {
 
     private Iterator<Document> documentStream;
     private List<SelectField> schema;
-    private DocumentStore store;
 
     private int rowNumber = 0;
 
     private boolean lastReadWasNull = false;
 
-    DojaiResultSet(DocumentStream documentStream, List<SelectField> selectFields, DocumentStore store) {
+    public DojaiResultSet(Stream<Document> documentStream, List<SelectField> selectFields) {
         this.documentStream = documentStream.iterator();
         this.schema = selectFields;
-        this.store = store;
     }
 
     @Override
@@ -63,11 +60,11 @@ public class DojaiResultSet implements ResultSet {
 
     @Override
     public void close() throws SQLException {
-        try {
-            store.close();
-        } catch (Exception e) {
-            throw new SQLException("Error closing store handler", e);
-        }
+//        try {
+//            store.close();
+//        } catch (Exception e) {
+//            throw new SQLException("Error closing store handler", e);
+//        }
     }
 
     @Override
