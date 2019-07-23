@@ -8,12 +8,16 @@ import com.github.anicolaspp.parsers.update.UpdateStatementParser;
 import lombok.val;
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.statement.select.SubSelect;
 import org.ojai.store.Connection;
 import org.ojai.store.Query;
+import org.ojai.store.QueryResult;
 
 import java.util.List;
 import java.util.Objects;
@@ -56,23 +60,81 @@ public class SelectStatementParser implements ChainParser {
                     .build();
         }
 
-        val plainSelectBody = (PlainSelect) select.getSelectBody();
-        val schema = getSchemaFrom(plainSelectBody);
+        return runSelect((PlainSelect) select.getSelectBody());
+//
+//        val plainSelectBody = (PlainSelect) select.getSelectBody();
+//        val from = plainSelectBody.getFromItem();
+//
+//        if (from instanceof SubSelect) {
+//
+//            val result = runSubSelect((SubSelect) from);
+//
+//        } else {
+//
+//            val schema = getSchemaFrom(plainSelectBody);
+//
+//            val query = QueryFunctions
+//                    .addLimit(plainSelectBody.getLimit(), getInitialQuery(plainSelectBody, schema))
+//                    .build();
+//
+//            return ParserQueryResult
+//                    .builder()
+//                    .type(ParserType.SELECT)
+//                    .query(query)
+//                    .table(getTable(from))
+//                    .selectFields(schema)
+//                    .successful(true)
+//                    .build();
+//        }
+    }
 
-        String table = QueryFunctions.getTableName(select);
+    private ParserQueryResult runSelect(PlainSelect plainSelectBody) {
+        val from = plainSelectBody.getFromItem();
 
-        val query = QueryFunctions
-                .addLimit(plainSelectBody.getLimit(), getInitialQuery(plainSelectBody, schema))
-                .build();
+        if (from instanceof SubSelect) {
 
-        return ParserQueryResult
-                .builder()
-                .type(ParserType.SELECT)
-                .query(query)
-                .table(table)
-                .selectFields(schema)
-                .successful(true)
-                .build();
+            val result = runSubSelect((SubSelect) from);
+
+
+
+            return null;
+
+        } else {
+
+            val schema = getSchemaFrom(plainSelectBody);
+
+            val query = QueryFunctions
+                    .addLimit(plainSelectBody.getLimit(), getInitialQuery(plainSelectBody, schema))
+                    .build();
+
+            return ParserQueryResult
+                    .builder()
+                    .type(ParserType.SELECT)
+                    .query(query)
+                    .table(getTable(from))
+                    .selectFields(schema)
+                    .successful(true)
+                    .build();
+        }
+    }
+
+    private QueryResult runSubSelect(SubSelect from) {
+
+        val query = runSelect((PlainSelect) from.getSelectBody());
+
+        val store = connection.getStore(query.getTable());
+
+        val documents = store.find(query.getQuery());
+
+        return documents;
+    }
+
+    private String getTable(FromItem from) {
+        if (from instanceof Table) {
+            return ((Table) from).getName();
+        } else {
+            return "";
+        }
     }
 
     private Query getInitialQuery(PlainSelect plainSelectBody, List<SelectField> schema) {
