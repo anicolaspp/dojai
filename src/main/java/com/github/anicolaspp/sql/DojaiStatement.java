@@ -42,9 +42,7 @@ public class DojaiStatement implements Statement {
 
             val query = ChainParser.build(ojaiConnection).parse(statement);
 
-            Stream<Document> documents = query.getDocuments();
-
-            return new DojaiResultSet(documents, query.getSelectFields());
+            return new DojaiResultSet(query.getDocuments(), query.getSelectFields());
 
         } catch (Exception e) {
             throw new SQLException("Error parsing SQL query", e);

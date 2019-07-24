@@ -11,7 +11,7 @@ public interface OjaiParser {
      * @param statement Statement to be parsed
      * @return returns Query or emptyQuery query
      */
-    <A> ParserQueryResult<A> getQueryFrom(net.sf.jsqlparser.statement.Statement statement);
+    ParserQueryResult getQueryFrom(net.sf.jsqlparser.statement.Statement statement);
 
     /**
      * Represents an empty query. Can be used by implementors for shorthand creation of empty ojai query.

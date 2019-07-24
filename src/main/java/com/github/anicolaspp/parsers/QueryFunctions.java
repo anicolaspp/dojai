@@ -2,6 +2,7 @@ package com.github.anicolaspp.parsers;
 
 import com.github.anicolaspp.parsers.select.SelectField;
 import com.mapr.ojai.store.impl.Values;
+import javafx.util.Pair;
 import lombok.val;
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
@@ -12,6 +13,7 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.Limit;
 import net.sf.jsqlparser.util.TablesNamesFinder;
+import org.ojai.Document;
 import org.ojai.Value;
 import org.ojai.store.Connection;
 import org.ojai.store.Query;
@@ -20,16 +22,34 @@ import org.ojai.types.ODate;
 import org.ojai.types.OTimestamp;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class QueryFunctions {
 
     private QueryFunctions() {
     }
 
+    public static <A> Map<String, Object> project(List<A> columns,
+                                                  Document document,
+                                                  Function<A, String> columnNameExtractor) {
+        return columns
+                .stream()
+                .map(column -> {
+                    val columnName = columnNameExtractor.apply(column);
+
+                    val value = document.getValue(columnName);
+
+                    return new Pair<>(columnName, value);
+                })
+                .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
+    }
+
     public static String getTableName(Statement statement) {
         TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
 
-        return tablesNamesFinder.getTableList(statement).get(0).replace("`","");
+        return tablesNamesFinder.getTableList(statement).get(0).replace("`", "");
     }
 
     public static QueryCondition getQueryConditionFrom(Expression where, Connection connection, List<SelectField> schema) {

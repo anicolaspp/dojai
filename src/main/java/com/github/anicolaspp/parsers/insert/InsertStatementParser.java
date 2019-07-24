@@ -62,7 +62,7 @@ public class InsertStatementParser implements ChainParser {
 
             Stream<Document> documentsToInsert = StreamSupport
                     .stream(documents.spliterator(), false)
-                    .map(document -> getDocumentWithValidId(getDoc(columns, document)));
+                    .map(document -> getDocumentWithValidId(QueryFunctions.project(columns, document, Column::getColumnName)));
 
             return new InsertParserResult(
                     null,
@@ -107,17 +107,6 @@ public class InsertStatementParser implements ChainParser {
         validateId(rawDocument);
 
         return connection.newDocument(rawDocument);
-    }
-
-    private Map<String, Object> getDoc(List<Column> columns, Document document) {
-        return columns
-                .stream()
-                .map(column -> {
-                    val value = document.getValue(column.getColumnName());
-
-                    return new Pair<>(column.getColumnName(), value);
-                })
-                .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
     }
 
     private void validateId(Map<String, Object> doc) {

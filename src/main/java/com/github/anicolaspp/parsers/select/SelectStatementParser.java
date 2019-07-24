@@ -6,7 +6,6 @@ import com.github.anicolaspp.parsers.ParserType;
 import com.github.anicolaspp.parsers.QueryFunctions;
 import com.github.anicolaspp.parsers.StoreManager;
 import com.github.anicolaspp.parsers.update.UpdateStatementParser;
-import javafx.util.Pair;
 import lombok.val;
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.schema.Column;
@@ -22,7 +21,6 @@ import org.ojai.store.Connection;
 import org.ojai.store.Query;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -78,7 +76,10 @@ public class SelectStatementParser implements ChainParser {
 
             Stream<Document> projectedDocs = result
                     .getDocuments()
-                    .map(document -> getMapDoc(result, document))
+                    .map(document -> QueryFunctions.project(
+                            result.getSelectFields(),
+                            document,
+                            selectField -> selectField.getAlias() == null ? selectField.getName() : selectField.getAlias()))
                     .map(connection::newDocument);
 
             return ParserQueryResult
@@ -113,30 +114,22 @@ public class SelectStatementParser implements ChainParser {
         }
     }
 
-    private Map<String, Object> getMapDoc(ParserQueryResult<Document> result, Document document) {
-        return result
-                .getSelectFields()
-                .stream()
-                .map(selectField -> {
-                    val value = document.getValue(selectField.getName());
-
-                    return new Pair<>(
-                            selectField.getAlias() == null ? selectField.getName() : selectField.getAlias(),
-                            value);
-
-                })
-                .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
-    }
-
     private ParserQueryResult<Document> runSubSelect(SubSelect from) {
 
         val query = runSelect((PlainSelect) from.getSelectBody());
 
         val store = connection.getStore(query.getTable());
 
-        val documents = StreamSupport.stream(store.find(query.getQuery()).spliterator(), false);
+        Stream<Document> documents = StreamSupport.stream(store.find(query.getQuery()).spliterator(), false);
 
-        return new ParserQueryResult<>(query.getQuery(), query.getTable(), query.getSelectFields(), true, ParserType.SELECT, documents);
+        return ParserQueryResult.<Document>builder()
+                .query(query.getQuery())
+                .table(query.getTable())
+                .selectFields(query.getSelectFields())
+                .successful(true)
+                .type(ParserType.SELECT)
+                .documents(documents)
+                .build();
     }
 
     private String getTable(FromItem from) {
