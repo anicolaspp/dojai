@@ -3,6 +3,7 @@ package com.github.anicolaspp.parsers.update;
 import com.github.anicolaspp.parsers.ChainParser;
 import com.github.anicolaspp.parsers.ParserQueryResult;
 import com.github.anicolaspp.parsers.QueryFunctions;
+import com.github.anicolaspp.parsers.QueryLimit;
 import com.github.anicolaspp.parsers.insert.InsertStatementParser;
 import lombok.val;
 import net.sf.jsqlparser.statement.Statement;
@@ -33,11 +34,11 @@ public class UpdateStatementParser implements ChainParser {
         }
 
         val update = (Update) statement;
-        val query = QueryFunctions
-                .addLimit(update.getLimit(),
-                        connection
-                                .newQuery()
-                                .where(QueryFunctions.getQueryConditionFrom(update.getWhere(), connection, null)));
+        val query = QueryLimit.limit(update.getLimit())
+                .applyTo(connection
+                        .newQuery()
+                        .where(QueryFunctions.getQueryConditionFrom(update.getWhere(), connection, null)))
+                .build();
 
         if (update.getColumns() != null && update.getColumns().size() > 0) {
             for (int i = 0; i < update.getColumns().size(); i++) {

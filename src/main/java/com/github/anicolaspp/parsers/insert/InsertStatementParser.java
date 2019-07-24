@@ -3,6 +3,7 @@ package com.github.anicolaspp.parsers.insert;
 import com.github.anicolaspp.parsers.ChainParser;
 import com.github.anicolaspp.parsers.ParserQueryResult;
 import com.github.anicolaspp.parsers.ParserType;
+import com.github.anicolaspp.parsers.Projection;
 import com.github.anicolaspp.parsers.QueryFunctions;
 import com.github.anicolaspp.parsers.delete.DeleteStatementParser;
 import com.github.anicolaspp.parsers.select.SelectStatementParser;
@@ -62,7 +63,7 @@ public class InsertStatementParser implements ChainParser {
 
             Stream<Document> documentsToInsert = StreamSupport
                     .stream(documents.spliterator(), false)
-                    .map(document -> getDocumentWithValidId(QueryFunctions.project(columns, document, Column::getColumnName)));
+                    .map(document -> Projection.project(columns, document).apply(Column::getColumnName, connection));
 
             return new InsertParserResult(
                     null,

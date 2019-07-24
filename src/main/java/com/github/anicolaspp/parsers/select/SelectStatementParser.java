@@ -3,11 +3,12 @@ package com.github.anicolaspp.parsers.select;
 import com.github.anicolaspp.parsers.ChainParser;
 import com.github.anicolaspp.parsers.ParserQueryResult;
 import com.github.anicolaspp.parsers.ParserType;
+import com.github.anicolaspp.parsers.Projection;
 import com.github.anicolaspp.parsers.QueryFunctions;
+import com.github.anicolaspp.parsers.QueryLimit;
 import com.github.anicolaspp.parsers.StoreManager;
 import com.github.anicolaspp.parsers.update.UpdateStatementParser;
 import lombok.val;
-import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
@@ -76,11 +77,9 @@ public class SelectStatementParser implements ChainParser {
 
             Stream<Document> projectedDocs = result
                     .getDocuments()
-                    .map(document -> QueryFunctions.project(
-                            result.getSelectFields(),
-                            document,
-                            selectField -> selectField.getAlias() == null ? selectField.getName() : selectField.getAlias()))
-                    .map(connection::newDocument);
+                    .map(document -> Projection
+                            .project(result.getSelectFields(), document)
+                            .apply(SelectField::getValue, connection));
 
             return ParserQueryResult
                     .<Document>builder()
@@ -95,15 +94,17 @@ public class SelectStatementParser implements ChainParser {
         } else {
             val schema = getSchemaFrom(plainSelectBody);
 
-            val query = QueryFunctions
-                    .addLimit(plainSelectBody.getLimit(), getInitialQuery(plainSelectBody, schema))
+            val query = QueryLimit
+                    .limit(plainSelectBody.getLimit())
+                    .applyTo(getInitialQuery(plainSelectBody, schema))
                     .build();
 
             val store = StoreManager.getStoreFor(getTable(from), connection);
 
             val documents = StreamSupport.stream(store.find(query).spliterator(), false);
 
-            return ParserQueryResult.<Document>builder()
+            return ParserQueryResult
+                    .<Document>builder()
                     .query(query)
                     .table(getTable(from))
                     .selectFields(schema)
@@ -122,12 +123,13 @@ public class SelectStatementParser implements ChainParser {
 
         Stream<Document> documents = StreamSupport.stream(store.find(query.getQuery()).spliterator(), false);
 
-        return ParserQueryResult.<Document>builder()
+        return ParserQueryResult
+                .<Document>builder()
                 .query(query.getQuery())
                 .table(query.getTable())
-                .selectFields(query.getSelectFields())
                 .successful(true)
                 .type(ParserType.SELECT)
+                .selectFields(query.getSelectFields())
                 .documents(documents)
                 .build();
     }
@@ -154,23 +156,15 @@ public class SelectStatementParser implements ChainParser {
                 .map(selectItem -> {
                     if (selectItem instanceof SelectExpressionItem) {
                         String columnName = ((Column) ((SelectExpressionItem) selectItem).getExpression()).getColumnName();
-                        String alias = getAliasName(((SelectExpressionItem) selectItem).getAlias());
 
-                        return new SelectField(columnName, alias);
+                        return SelectField.withName(columnName).andAlias(((SelectExpressionItem) selectItem).getAlias());
+
                     } else {
                         return null;
                     }
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-    }
-
-    private String getAliasName(Alias alias) {
-        if (alias == null) {
-            return null;
-        } else {
-            return alias.getName();
-        }
     }
 }
 
