@@ -9,12 +9,10 @@ import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
 import org.ojai.Document;
+import org.ojai.Value;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 public class RunnableQuery {
 
@@ -51,22 +49,15 @@ public class RunnableQuery {
 
             val query = ChainParser.build(ojaiConnection).parse(statement);
 
+            val tableName = query.getTable();
+            val store = ojaiConnection.getStore(tableName);
+
             if (query instanceof InsertParserResult) {
-                val tableName = query.getTable();
-
-                val store = ojaiConnection.getStore(tableName);
-
-                Consumer<Document> consumer = store::insert;
-                return runConsumerOn(query.getDocuments(), consumer);
+                return new StreamConsumer<Document>(store::insert).runOn(query.getDocuments());
             }
 
             if (query instanceof DeleteParserResult) {
-                val tableName = query.getTable();
-
-                val store = ojaiConnection.getStore(tableName);
-
-                Consumer<Document> consumer = store::delete;
-                return runConsumerOn(query.getDocuments(), consumer);
+                return new StreamConsumer<Value>(store::delete).runOn(query.getDocuments());
             }
 
             return 0;
@@ -75,16 +66,5 @@ public class RunnableQuery {
             throw new SQLException("Error Inserting", e);
         }
     }
-
-    private <A> int runConsumerOn(Stream<A> values, Consumer<A> consumer) {
-        AtomicInteger count = new AtomicInteger();
-
-        values.forEach(value -> {
-            consumer.accept(value);
-
-            count.addAndGet(1);
-        });
-
-        return count.get();
-    }
 }
+
