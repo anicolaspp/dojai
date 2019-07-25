@@ -1,4 +1,4 @@
-package com.github.anicolaspp.parsers;
+package com.github.anicolaspp.db;
 
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.FromItem;

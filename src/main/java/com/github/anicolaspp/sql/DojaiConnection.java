@@ -43,7 +43,7 @@ public class DojaiConnection implements Connection {
     public PreparedStatement prepareStatement(String sql) throws SQLException {
         System.out.println(sql);
 
-        return new DojaiPreparedStatement(sql);
+        return new DojaiPreparedStatement(sql, connection);
 
 //        throw new NotSupportedException("prepareStatement are not supported. Please, use createStatement()");
     }

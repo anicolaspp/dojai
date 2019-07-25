@@ -52,14 +52,14 @@ public class App {
         val repository = new EmployeeRepository(factory);
 
         val empID1 = repository.addEmployee("Zarai", "Ali", 1000);
-        val empID2 = repository.addEmployee("Daisy", "Das", 5000);
-        repository.addEmployee("Johnn", "Pau", 10000);
+//        val empID2 = repository.addEmployee("Daisy", "Das", 5000);
+//        repository.addEmployee("Johnn", "Pau", 10000);
 
 
-        repository.listEmployees();
-        repository.updateEmployee(empID1, 5000);
-        repository.deleteEmployee(empID2);
-        repository.listEmployees();
+//        repository.listEmployees();
+//        repository.updateEmployee(empID1, 5000);
+//        repository.deleteEmployee(empID2);
+//        repository.listEmployees();
     }
 }
 

@@ -1,4 +1,4 @@
-package com.github.anicolaspp.parsers;
+package com.github.anicolaspp.db;
 
 import com.github.anicolaspp.parsers.select.SelectField;
 import com.mapr.ojai.store.impl.Values;

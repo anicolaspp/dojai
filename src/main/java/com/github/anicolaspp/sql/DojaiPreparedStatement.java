@@ -1,5 +1,7 @@
 package com.github.anicolaspp.sql;
 
+import com.github.anicolaspp.db.RunnableQuery;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -24,26 +26,44 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 
 public class DojaiPreparedStatement implements PreparedStatement {
+    private final String sql;
+    private String mutableSQL;
 
+    private long numberOfQuestions;
+    private int numberOfReplacements = 0;
 
-    private String sql;
+    private org.ojai.store.Connection ojaiConnection;
 
-    public DojaiPreparedStatement(String sql) {
-
+    public DojaiPreparedStatement(String sql, org.ojai.store.Connection ojaiConnection) {
         this.sql = sql;
+        this.mutableSQL = sql;
+        this.numberOfQuestions = sql.chars().filter(n -> ((char) n) == '?').count();
+
+        this.ojaiConnection = ojaiConnection;
     }
 
     @Override
     public ResultSet executeQuery() throws SQLException {
+        this.mutableSQL = fillWithNull(mutableSQL);
 
-        System.out.println(String.format("executeQuery: %s", sql));
+        System.out.println(String.format("executeQuery: %s", mutableSQL));
 
-        return null;
+        return RunnableQuery.from(mutableSQL).executeQueryWith(ojaiConnection);
     }
 
     @Override
     public int executeUpdate() throws SQLException {
-        return 0;
+        this.mutableSQL = fillWithNull(mutableSQL);
+
+        System.out.println(String.format("executeUpdate: %s", mutableSQL));
+
+        return RunnableQuery.from(mutableSQL).executeUpdateWith(ojaiConnection);
+    }
+
+    private String fillWithNull(String sql) {
+        char mark = '?';
+
+        return sql.replace(String.valueOf(mark), "NULL");
     }
 
     @Override
@@ -93,8 +113,36 @@ public class DojaiPreparedStatement implements PreparedStatement {
 
     @Override
     public void setString(int parameterIndex, String x) throws SQLException {
+        this.mutableSQL = replaceWithValue(sql, parameterIndex - 1, x);
+    }
 
-        System.out.println(String.format("setString(%d, %s)", parameterIndex, x));
+    private String replaceWithValue(String sql, int parameterIndex, String value) {
+        int index = findReplaceIndex(mutableSQL, parameterIndex - numberOfReplacements);
+
+        if (index >= 0) {
+            numberOfReplacements++;
+            return mutableSQL.substring(0, index) + value + mutableSQL.substring(index + 1);
+        }
+
+        return sql;
+    }
+
+    private int findReplaceIndex(String sql, int parameterIndex) {
+        int count = -1;
+
+        char[] chars = sql.toCharArray();
+
+        for (int i = 0; i < chars.length; i++) {
+            if (chars[i] == '?') {
+                count++;
+            }
+
+            if (count == parameterIndex) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     @Override

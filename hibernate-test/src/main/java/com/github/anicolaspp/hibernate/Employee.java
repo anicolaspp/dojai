@@ -12,7 +12,7 @@ create table EMPLOYEE (
 );
  */
 @Entity
-@Table(name = "/user/mapr/tables/employee")
+@Table(name = "`/user/mapr/tables/employee`")
 public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

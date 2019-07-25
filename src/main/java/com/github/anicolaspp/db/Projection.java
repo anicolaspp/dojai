@@ -1,4 +1,4 @@
-package com.github.anicolaspp.parsers;
+package com.github.anicolaspp.db;
 
 import javafx.util.Pair;
 import lombok.val;

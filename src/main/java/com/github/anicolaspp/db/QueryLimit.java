@@ -1,4 +1,4 @@
-package com.github.anicolaspp.parsers;
+package com.github.anicolaspp.db;
 
 import lombok.val;
 import net.sf.jsqlparser.expression.LongValue;
