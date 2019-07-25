@@ -26,8 +26,18 @@ import java.util.Calendar;
 public class DojaiPreparedStatement implements PreparedStatement {
 
 
+    private String sql;
+
+    public DojaiPreparedStatement(String sql) {
+
+        this.sql = sql;
+    }
+
     @Override
     public ResultSet executeQuery() throws SQLException {
+
+        System.out.println(String.format("executeQuery: %s", sql));
+
         return null;
     }
 
@@ -84,6 +94,7 @@ public class DojaiPreparedStatement implements PreparedStatement {
     @Override
     public void setString(int parameterIndex, String x) throws SQLException {
 
+        System.out.println(String.format("setString(%d, %s)", parameterIndex, x));
     }
 
     @Override
