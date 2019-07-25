@@ -7,12 +7,11 @@ import com.github.anicolaspp.parsers.Projection;
 import com.github.anicolaspp.parsers.QueryFunctions;
 import com.github.anicolaspp.parsers.QueryLimit;
 import com.github.anicolaspp.parsers.StoreManager;
+import com.github.anicolaspp.parsers.Table;
 import com.github.anicolaspp.parsers.update.UpdateStatementParser;
 import lombok.val;
 import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
@@ -85,7 +84,7 @@ public class SelectStatementParser implements ChainParser {
                     .<Document>builder()
                     .type(ParserType.SELECT)
                     .query(result.getQuery())
-                    .table(getTable(from))
+                    .table(Table.from(from).getName())
                     .selectFields(getSchemaFrom(plainSelectBody))
                     .successful(true)
                     .documents(projectedDocs)
@@ -99,14 +98,16 @@ public class SelectStatementParser implements ChainParser {
                     .applyTo(getInitialQuery(plainSelectBody, schema))
                     .build();
 
-            val store = StoreManager.getStoreFor(getTable(from), connection);
+            val tableName = Table.from(from).getName();
+
+            val store = StoreManager.getStoreFor(tableName, connection);
 
             val documents = StreamSupport.stream(store.find(query).spliterator(), false);
 
             return ParserQueryResult
                     .<Document>builder()
                     .query(query)
-                    .table(getTable(from))
+                    .table(tableName)
                     .selectFields(schema)
                     .successful(true)
                     .type(ParserType.SELECT)
@@ -132,14 +133,6 @@ public class SelectStatementParser implements ChainParser {
                 .selectFields(query.getSelectFields())
                 .documents(documents)
                 .build();
-    }
-
-    private String getTable(FromItem from) {
-        if (from instanceof Table) {
-            return ((Table) from).getName().replace("`", "");
-        } else {
-            return "";
-        }
     }
 
     private Query getInitialQuery(PlainSelect plainSelectBody, List<SelectField> schema) {

@@ -17,7 +17,7 @@ public class App {
     private static SessionFactory buildSessionFactory() {
         try {
             val configuration = new Configuration();
-            configuration.setProperty("hibernate.connection.url", "dojain:mapr:");
+            configuration.setProperty("hibernate.connection.url", "dojai:mapr:");
 
             Class.forName("com.github.anicolaspp.sql.DojaiDriver");
 
