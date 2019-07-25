@@ -5,6 +5,7 @@ import com.github.anicolaspp.parsers.ParserQueryResult;
 import com.github.anicolaspp.parsers.ParserType;
 import com.github.anicolaspp.parsers.Projection;
 import com.github.anicolaspp.parsers.QueryFunctions;
+import com.github.anicolaspp.parsers.Table;
 import com.github.anicolaspp.parsers.delete.DeleteStatementParser;
 import com.github.anicolaspp.parsers.select.SelectStatementParser;
 import javafx.util.Pair;
@@ -67,7 +68,7 @@ public class InsertStatementParser implements ChainParser {
 
             return new InsertParserResult(
                     null,
-                    QueryFunctions.getTableName(insert),
+                    Table.from(insert).getName(),
                     null,
                     true,
                     ParserType.INSERT,
@@ -89,7 +90,8 @@ public class InsertStatementParser implements ChainParser {
                     .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
 
             return new InsertParserResult(
-                    null, QueryFunctions.getTableName(insert),
+                    null,
+                    Table.from(insert).getName(),
                     null,
                     true,
                     ParserType.INSERT,

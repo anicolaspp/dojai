@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 
 
 public class DojaiDriver implements Driver {
-    
+
     static {
         try {
             DriverManager.registerDriver(new DojaiDriver());
@@ -19,37 +19,37 @@ public class DojaiDriver implements Driver {
             e.printStackTrace();
         }
     }
-    
+
     public Connection connect(String url, Properties info) throws SQLException {
         if (acceptsURL(url)) {
-        
+
             return new DojaiConnection();
-            
+
         } else {
             return null;
         }
     }
-    
+
     public boolean acceptsURL(String url) throws SQLException {
         return url.startsWith("dojai:mapr:");
     }
-    
+
     public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) throws SQLException {
         return new DriverPropertyInfo[0];
     }
-    
+
     public int getMajorVersion() {
         return 1;
     }
-    
+
     public int getMinorVersion() {
         return 0;
     }
-    
+
     public boolean jdbcCompliant() {
-        return false;
+        return true;
     }
-    
+
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         return null;
     }

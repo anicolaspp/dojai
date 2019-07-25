@@ -4,6 +4,7 @@ import com.github.anicolaspp.parsers.ChainParser;
 import com.github.anicolaspp.parsers.ParserQueryResult;
 import com.github.anicolaspp.parsers.ParserType;
 import com.github.anicolaspp.parsers.QueryFunctions;
+import com.github.anicolaspp.parsers.Table;
 import com.github.anicolaspp.parsers.select.SelectField;
 import com.github.anicolaspp.parsers.unknown.UnsupportedStatementParser;
 import lombok.val;
@@ -41,7 +42,7 @@ public class DeleteStatementParser implements ChainParser {
 
         val delete = (Delete) statement;
 
-        String table = QueryFunctions.getTableName(delete);
+        String table = Table.from(delete).getName();
 
         val query = connection
                 .newQuery()

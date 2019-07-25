@@ -4,6 +4,7 @@ import com.github.anicolaspp.parsers.ChainParser;
 import com.github.anicolaspp.parsers.ParserQueryResult;
 import com.github.anicolaspp.parsers.QueryFunctions;
 import com.github.anicolaspp.parsers.QueryLimit;
+import com.github.anicolaspp.parsers.Table;
 import com.github.anicolaspp.parsers.insert.InsertStatementParser;
 import lombok.val;
 import net.sf.jsqlparser.statement.Statement;
@@ -50,7 +51,7 @@ public class UpdateStatementParser implements ChainParser {
             }
         }
 
-        String table = QueryFunctions.getTableName(update);
+        String table = Table.from(update).getName();
 
         System.out.println("update");
 

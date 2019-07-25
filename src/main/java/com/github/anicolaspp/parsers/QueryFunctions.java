@@ -8,8 +8,6 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.TimestampValue;
 import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.statement.Statement;
-import net.sf.jsqlparser.util.TablesNamesFinder;
 import org.ojai.Value;
 import org.ojai.store.Connection;
 import org.ojai.store.QueryCondition;
@@ -22,12 +20,6 @@ import java.util.List;
 public class QueryFunctions {
 
     private QueryFunctions() {
-    }
-
-    public static String getTableName(Statement statement) {
-        TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
-
-        return tablesNamesFinder.getTableList(statement).get(0).replace("`", "");
     }
 
     public static QueryCondition getQueryConditionFrom(Expression where, Connection connection, List<SelectField> schema) {
