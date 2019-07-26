@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-public class StreamConsumer<A> {
+class StreamConsumer<A> {
     private Consumer<A> consumer;
 
     public StreamConsumer(Consumer<A> consumer) {

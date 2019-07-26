@@ -1,6 +1,13 @@
 package com.github.anicolaspp.hibernate;
 
-import javax.persistence.*;
+import org.hibernate.annotations.GenericGenerator;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.PrePersist;
+import javax.persistence.Table;
+import java.util.UUID;
 
 /*
 create table EMPLOYEE (
@@ -14,17 +21,27 @@ create table EMPLOYEE (
 @Entity
 @Table(name = "`/user/mapr/tables/employee`")
 public class Employee {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @GenericGenerator(name="system-uuid", strategy = "uuid")
+    @Column(name = "_id")
+    private String id;
+
     @Column(name = "first_name")
     private String firstName;
+
     @Column(name = "last_name")
     private String lastName;
+
     @Column(name = "salary")
     private int salary;
 
     public Employee() {
+    }
+
+    @PrePersist
+    private void generateCodeIdentifier(){
+        id = "\"" + UUID.randomUUID().toString() + "\"";
     }
 
     public Employee(String fname, String lname, int salary) {
@@ -33,11 +50,11 @@ public class Employee {
         this.salary = salary;
     }
 
-    public int getId() {
-        return id;
+    public String getId() {
+        return "\"" + id + "\"";
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

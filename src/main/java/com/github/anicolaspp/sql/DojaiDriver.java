@@ -1,8 +1,8 @@
 package com.github.anicolaspp.sql;
 
-import com.github.anicolaspp.sql.connections.DirectConnection;
-import com.github.anicolaspp.sql.connections.InMemoryConnection;
-import com.github.anicolaspp.sql.connections.MapRDBConnection;
+import com.github.anicolaspp.db.connections.DirectConnection;
+import com.github.anicolaspp.db.connections.InMemoryConnection;
+import com.github.anicolaspp.db.connections.MapRDBConnection;
 
 import java.sql.Connection;
 import java.sql.Driver;

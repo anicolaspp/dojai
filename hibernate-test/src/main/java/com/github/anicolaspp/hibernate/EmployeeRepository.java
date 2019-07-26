@@ -12,16 +12,17 @@ public class EmployeeRepository {
         this.factory = factory;
     }
 
-    public Integer addEmployee(String fname, String lname, int salary){
+    public String addEmployee(String fname, String lname, int salary){
         val session = factory.openSession();
         Transaction tx = null;
-        Integer employeeID = null;
+        String employeeID = "null";
 
         try {
-//            tx = session.beginTransaction();
+            tx = session.beginTransaction();
             val employee = new Employee(fname, lname, salary);
-            employeeID = (Integer) session.save(employee);
-//            tx.commit();
+            System.out.println(session.save(employee));
+
+            tx.commit();
         } catch (HibernateException e) {
             if (tx!=null) tx.rollback();
             e.printStackTrace();
@@ -37,8 +38,11 @@ public class EmployeeRepository {
 
         try {
             tx = session.beginTransaction();
-            val employees = session.createQuery("FROM Employee").list();
+            val employees = session.createQuery("select id, firstName from Employee").list();
             for (val obj : employees) {
+
+                System.out.println(obj.toString());
+
                 val employee = (Employee) obj;
                 System.out.print("  First Name: " + employee.getFirstName());
                 System.out.print("  Last Name: " + employee.getLastName());

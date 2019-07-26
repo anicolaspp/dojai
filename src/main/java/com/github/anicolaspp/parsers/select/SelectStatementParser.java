@@ -1,13 +1,14 @@
 package com.github.anicolaspp.parsers.select;
 
-import com.github.anicolaspp.parsers.ChainParser;
-import com.github.anicolaspp.parsers.ParserQueryResult;
-import com.github.anicolaspp.parsers.ParserType;
+import com.github.anicolaspp.db.IdGenerator;
 import com.github.anicolaspp.db.Projection;
 import com.github.anicolaspp.db.QueryFunctions;
 import com.github.anicolaspp.db.QueryLimit;
 import com.github.anicolaspp.db.StoreManager;
 import com.github.anicolaspp.db.Table;
+import com.github.anicolaspp.parsers.ChainParser;
+import com.github.anicolaspp.parsers.ParserQueryResult;
+import com.github.anicolaspp.parsers.ParserType;
 import com.github.anicolaspp.parsers.update.UpdateStatementParser;
 import lombok.val;
 import net.sf.jsqlparser.schema.Column;
@@ -20,12 +21,12 @@ import org.ojai.Document;
 import org.ojai.store.Connection;
 import org.ojai.store.Query;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
 
 public class SelectStatementParser implements ChainParser {
 
@@ -69,6 +70,20 @@ public class SelectStatementParser implements ChainParser {
 
     private ParserQueryResult runSelect(PlainSelect plainSelectBody) {
         val from = plainSelectBody.getFromItem();
+
+        if (from == null && plainSelectBody.getSelectItems().size() > 0 && plainSelectBody.getSelectItems().get(0).toString().equals("nextval('uuid')")) {
+
+            val docs = Collections.singletonList(connection.newDocument().set("nextval", IdGenerator.getInstance().nextId()));
+
+            return ParserQueryResult
+                    .<Document>builder()
+                    .type(ParserType.SELECT)
+                    .table("IDS")
+                    .selectFields(Collections.singletonList(SelectField.withName("nextval")))
+                    .successful(true)
+                    .documents(docs.stream())
+                    .build();
+        }
 
         if (from instanceof SubSelect) {
 
@@ -114,6 +129,7 @@ public class SelectStatementParser implements ChainParser {
                     .documents(documents)
                     .build();
         }
+
     }
 
     private ParserQueryResult<Document> runSubSelect(SubSelect from) {

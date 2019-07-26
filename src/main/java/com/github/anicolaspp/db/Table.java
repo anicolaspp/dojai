@@ -11,12 +11,19 @@ public class Table {
     private Table(Statement statement) {
 
         TablesNamesFinder tablesNamesFinder = new TablesNamesFinder();
-        this.tableName = tablesNamesFinder.getTableList(statement).get(0).replace("`", "");
+        this.tableName = tablesNamesFinder
+                .getTableList(statement)
+                .get(0)
+                .replace("`", "")
+                .replace("\"", "");
     }
 
     private Table(FromItem from) {
         if (from instanceof net.sf.jsqlparser.schema.Table) {
-            this.tableName = ((net.sf.jsqlparser.schema.Table) from).getName().replace("`", "");
+            this.tableName = ((net.sf.jsqlparser.schema.Table) from)
+                    .getName()
+                    .replace("`", "")
+                    .replace("\"", "");
         } else {
             this.tableName = "";
         }

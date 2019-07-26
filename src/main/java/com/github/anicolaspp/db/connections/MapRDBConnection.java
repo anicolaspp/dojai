@@ -1,4 +1,4 @@
-package com.github.anicolaspp.sql.connections;
+package com.github.anicolaspp.db.connections;
 
 public class MapRDBConnection implements DirectConnection {
 

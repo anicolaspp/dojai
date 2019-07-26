@@ -19,13 +19,13 @@ public class App {
     private static SessionFactory buildSessionFactory() {
         try {
             val configuration = new Configuration();
-            configuration.setProperty("hibernate.connection.url", "dojai:mapr:mem:");
+            configuration.setProperty("hibernate.connection.url", "dojai:mapr:");
 
             Class.forName("com.github.anicolaspp.sql.DojaiDriver");
 
             DriverManager.registerDriver(InMemoryDriver.apply());
 
-            configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+            configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
             configuration.setProperty("hibernate.connection.driver_class", "com.github.anicolaspp.sql.DojaiDriver");
             configuration.setProperty("hibernate.show_sql", "true");
 
@@ -55,12 +55,12 @@ public class App {
     private static void addEmployees(SessionFactory factory) {
         val repository = new EmployeeRepository(factory);
 
-        val empID1 = repository.addEmployee("Zarai", "Ali", 1000);
+//        val empID1 = repository.addEmployee("Zarai", "Ali", 1000);
 //        val empID2 = repository.addEmployee("Daisy", "Das", 5000);
 //        repository.addEmployee("Johnn", "Pau", 10000);
 
 
-//        repository.listEmployees();
+        repository.listEmployees();
 //        repository.updateEmployee(empID1, 5000);
 //        repository.deleteEmployee(empID2);
 //        repository.listEmployees();

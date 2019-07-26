@@ -1,7 +1,7 @@
 package com.github.anicolaspp.sql;
 
 import com.github.anicolaspp.parsers.ChainParser;
-import com.github.anicolaspp.sql.connections.DirectConnection;
+import com.github.anicolaspp.db.connections.DirectConnection;
 import lombok.val;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import org.ojai.store.DriverManager;
@@ -77,7 +77,7 @@ public class DojaiConnection implements Connection {
 
     @Override
     public void setAutoCommit(boolean autoCommit) throws SQLException {
-        throw new SQLException("MapR Database does not support transactions");
+//        throw new SQLException("MapR Database does not support transactions");
     }
 
     @Override
@@ -87,12 +87,12 @@ public class DojaiConnection implements Connection {
 
     @Override
     public void commit() throws SQLException {
-        throw new SQLException("MapR Database does not support transactions");
+//        throw new SQLException("MapR Database does not support transactions");
     }
 
     @Override
     public void rollback() throws SQLException {
-        throw new SQLException("MapR Database does not support transactions");
+//        throw new SQLException("MapR Database does not support transactions");
     }
 
     @Override
