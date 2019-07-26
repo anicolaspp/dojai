@@ -23,10 +23,16 @@ public class DojaiDriver implements Driver {
         }
     }
 
+    private DojaiConnection connection;
+
     public Connection connect(String url, Properties info) throws SQLException {
         if (acceptsURL(url)) {
 
-            return new DojaiConnection(getConnectionTypeFrom(url));
+            if (connection == null) {
+                connection = new DojaiConnection(getConnectionTypeFrom(url));
+            }
+
+            return connection;
 
         } else {
             return null;
@@ -34,7 +40,7 @@ public class DojaiDriver implements Driver {
     }
 
     public boolean acceptsURL(String url) throws SQLException {
-        return url.startsWith("dojai:mapr:") || url.startsWith("dojai:mapr:mem");
+        return url.startsWith("dojai:mapr:") || url.startsWith("dojai:mapr:mem:");
     }
 
     public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) throws SQLException {
@@ -58,10 +64,10 @@ public class DojaiDriver implements Driver {
     }
 
     private DirectConnection getConnectionTypeFrom(String url) {
-        if (url.startsWith("dojai:mapr:")) {
-            return new MapRDBConnection();
-        } else if (url.startsWith("dojai:mapr:mem:")) {
+        if (url.startsWith("dojai:mapr:mem:")) {
             return new InMemoryConnection();
+        } else if (url.startsWith("dojai:mapr")) {
+            return new MapRDBConnection();
         } else {
             return null;
         }

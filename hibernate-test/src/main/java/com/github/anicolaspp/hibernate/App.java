@@ -1,8 +1,10 @@
 package com.github.anicolaspp.hibernate;
 
+import com.mapr.ojai.store.impl.InMemoryDriver;
 import lombok.val;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.ojai.store.DriverManager;
 
 import java.sql.SQLException;
 
@@ -17,9 +19,11 @@ public class App {
     private static SessionFactory buildSessionFactory() {
         try {
             val configuration = new Configuration();
-            configuration.setProperty("hibernate.connection.url", "dojai:mapr:");
+            configuration.setProperty("hibernate.connection.url", "dojai:mapr:mem:");
 
             Class.forName("com.github.anicolaspp.sql.DojaiDriver");
+
+            DriverManager.registerDriver(InMemoryDriver.apply());
 
             configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
             configuration.setProperty("hibernate.connection.driver_class", "com.github.anicolaspp.sql.DojaiDriver");
