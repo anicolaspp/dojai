@@ -1,5 +1,9 @@
 package com.github.anicolaspp.sql;
 
+import com.github.anicolaspp.sql.connections.DirectConnection;
+import com.github.anicolaspp.sql.connections.InMemoryConnection;
+import com.github.anicolaspp.sql.connections.MapRDBConnection;
+
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -8,7 +12,6 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.logging.Logger;
-
 
 public class DojaiDriver implements Driver {
 
@@ -23,7 +26,7 @@ public class DojaiDriver implements Driver {
     public Connection connect(String url, Properties info) throws SQLException {
         if (acceptsURL(url)) {
 
-            return new DojaiConnection();
+            return new DojaiConnection(getConnectionTypeFrom(url));
 
         } else {
             return null;
@@ -31,7 +34,7 @@ public class DojaiDriver implements Driver {
     }
 
     public boolean acceptsURL(String url) throws SQLException {
-        return url.startsWith("dojai:mapr:");
+        return url.startsWith("dojai:mapr:") || url.startsWith("dojai:mapr:mem");
     }
 
     public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) throws SQLException {
@@ -52,5 +55,15 @@ public class DojaiDriver implements Driver {
 
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
         return null;
+    }
+
+    private DirectConnection getConnectionTypeFrom(String url) {
+        if (url.startsWith("dojai:mapr:")) {
+            return new MapRDBConnection();
+        } else if (url.startsWith("dojai:mapr:mem:")) {
+            return new InMemoryConnection();
+        } else {
+            return null;
+        }
     }
 }

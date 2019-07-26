@@ -1,6 +1,7 @@
 package com.github.anicolaspp.sql;
 
 import com.github.anicolaspp.parsers.ChainParser;
+import com.github.anicolaspp.sql.connections.DirectConnection;
 import lombok.val;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import org.ojai.store.DriverManager;
@@ -29,9 +30,14 @@ public class DojaiConnection implements Connection {
 
     private final org.ojai.store.Connection connection;
     private boolean isClosed = false;
+    private DirectConnection connectionTypeFrom;
 
-    DojaiConnection() {
-        this.connection = DriverManager.getConnection("ojai:mapr:");
+    DojaiConnection(DirectConnection connectionTypeProvider) throws SQLException {
+        if (connectionTypeProvider == null) {
+            throw new SQLException("Unsupported Connection Type");
+        }
+
+        this.connection = DriverManager.getConnection(connectionTypeProvider.getUrl());
     }
 
     @Override
@@ -41,7 +47,6 @@ public class DojaiConnection implements Connection {
 
     @Override
     public PreparedStatement prepareStatement(String sql) throws SQLException {
-        System.out.println(sql);
 
         return new DojaiPreparedStatement(sql, connection);
 
