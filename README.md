@@ -1,9 +1,12 @@
 # dojai (pronounced Du-jai)
+
 A JDBC Driver for OJAI
 
 This is an **experimental** library that allows connecting to MapR Database through JDBC. MapR Database is a NoSQL Database, so not everything that works on regular SQL will work here. 
 
 We should be able to run queries that do not involve more than one table. In other words, not joins and not aggregations. Those are normally run using analytical tools such as Apache Drill. 
+
+- [Working with Hibernate](https://github.com/anicolaspp/dojai/blob/master/README.md#working-with-hibernate)
 
 ### Examples
 
@@ -122,7 +125,7 @@ Deletes can be executed in the following way.
     }
 ```
 
-### Working with Hibernate
+# Working with Hibernate
 
 Since `DOJAI` is implemented in terms of JDBC, we can integrate it with Hibernate so we dont have to create the SQL queries manually, instead, we can relie of Hibernate to do this work while we focus on the application logic. 
 
