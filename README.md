@@ -6,9 +6,10 @@ This is an **experimental** library that allows connecting to MapR Database thro
 
 We should be able to run queries that do not involve more than one table. In other words, not joins and not aggregations. Those are normally run using analytical tools such as Apache Drill. 
 
+- [Plain SQL](https://github.com/anicolaspp/dojai/blob/master/README.md#plain-sql)
 - [Working with Hibernate](https://github.com/anicolaspp/dojai/blob/master/README.md#working-with-hibernate)
 
-### Examples
+### Plain SQL
 
 The following get all records from a MapR Database table given some condition. 
 
