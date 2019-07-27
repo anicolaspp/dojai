@@ -122,6 +122,195 @@ Deletes can be executed in the following way.
     }
 ```
 
+### Working with Hibernate
+
+Since `DOJAI` is implemented in terms of JDBC, we can integrate it with Hibernate so we dont have to create the SQL queries manually, instead, we can relie of Hibernate to do this work while we focus on the application logic. 
+
+## Hibernate Configuration
+
+First, let's look at how we can configure Hibernate so it uses `DOJAI` as a datasource.
+
+The following snippet shows how we can optain a Hibernate `SessionFactory`. 
+
+```java
+ private static SessionFactory buildSessionFactory() {
+        try {
+            val configuration = new Configuration();
+            configuration.setProperty("hibernate.connection.url", "dojai:mapr:mem:");
+
+            Class.forName("com.github.anicolaspp.sql.DojaiDriver");
+
+            DriverManager.registerDriver(InMemoryDriver.apply());
+
+            configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
+            configuration.setProperty("hibernate.connection.driver_class", "com.github.anicolaspp.sql.DojaiDriver");
+            configuration.setProperty("hibernate.show_sql", "true");
+
+            configuration.setProperty("hibernate.c3p0.min_size", "5");
+            configuration.setProperty("hibernate.c3p0.max_size", "20");
+            configuration.setProperty("hibernate.c3p0.timeout", "300");
+            configuration.setProperty("hibernate.c3p0.max_statements", "50");
+            configuration.setProperty("hibernate.c3p0.idle_test_period", "3000");
+
+            configuration.addPackage("com.github.anicolaspp.hibernate");
+            configuration.addAnnotatedClass(Employee.class);
+
+            return configuration.buildSessionFactory();
+        } catch (Throwable ex) {
+            System.err.println("Failed to create sessionFactory object." + ex);
+            throw new ExceptionInInitializerError(ex);
+        }
+    }
+```
+
+Let's review some interesting features of the code above.
+
+- `configuration.setProperty("hibernate.connection.url", "dojai:mapr:mem:");` allows us the define what kind of OJAI connection we want. We can choose between `dojai:mapr:mem:` for an in-memery implementation of `MapR Database` using the [OJAI Testing Project](https://github.com/anicolaspp/ojai-testing) or `dojai:mapr:` for a real implementation of `MapR Database`. 
+
+- `configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");` Notice we use `MySQL5Dialect`. 
+
+- `configuration.setProperty("hibernate.connection.driver_class", "com.github.anicolaspp.sql.DojaiDriver");` indicates that Hibernate will use the `DojaiDriver`. Internally, the `DojaiDriver` will select to use [OJAI Testing Project](https://github.com/anicolaspp/ojai-testing) or real `MapR Database` based on the `"hibernate.connection.url"` described above. 
+
+## Our Hibernate Employee Entity
+
+```java
+@Entity
+@Table(name = "`anicolaspp/user/mapr/tables/employee`")
+@ToString
+public class Employee {
+
+    @Id
+    @GenericGenerator(name="system-uuid", strategy = "uuid")
+    @Column(name = "_id")
+    private String id;
+
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "salary")
+    private int salary;
+
+    public Employee() {
+    }
+
+    @PrePersist
+    private void generateCodeIdentifier(){
+        id = "\"" + UUID.randomUUID().toString() + "\"";
+    }
+
+    public Employee(String firstName, String lastName, int salary) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.salary = salary;
+    }
+
+    public String getId() {
+        return "\"" + id + "\"";
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String first_name) {
+        this.firstName = first_name;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String last_name) {
+        this.lastName = last_name;
+    }
+
+    public int getSalary() {
+        return salary;
+    }
+
+    public void setSalary(int salary) {
+        this.salary = salary;
+    }
+}
+```
+
+A few things to notice:
+
+```java
+@Table(name = "`anicolaspp/user/mapr/tables/employee`") 
+``` 
+Shows the table to be used. In case of using [OJAI Testing Project](https://github.com/anicolaspp/ojai-testing), the table path must start with `anicolaspp`. In case of using a real `MapR Database` cluster, this path should be a real path in the cluster. 
+
+```java
+    @Id
+    @GenericGenerator(name="system-uuid", strategy = "uuid")
+    @Column(name = "_id")
+    private String id;
+```
+Notice that `id` column in this case is being mapped to `_id`, internally the identity column for `MapR Database`. Also it is important to mention that `MapR Database` does not auto generate ids, they must be managed on the client side. In our case we use the `generateCodeIdentifier` function for that. Hibernate calls this function before saving new entities. 
+
+## Running Hibernate Queries
+
+### Adding an Employee
+
+```java
+ public String addEmployee(String fname, String lname, int salary){
+        val session = factory.openSession();
+        Transaction tx = null;
+        String employeeID = "null";
+
+        try {
+            tx = session.beginTransaction();
+            val employee = new Employee(fname, lname, salary);
+            System.out.println(session.save(employee));
+
+            tx.commit();
+        } catch (HibernateException e) {
+            if (tx!=null) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return employeeID;
+    }
+
+```
+
+### Loading all employees
+
+```java
+ public void listEmployees( ){
+        val session = factory.openSession();
+        Transaction tx = null;
+
+        try {
+            tx = session.beginTransaction();
+            List<Employee> employees = session.createQuery("FROM Employee").getResultList();
+
+            for (Employee obj : employees) {
+                System.out.print("  First Name: " + employee.getFirstName());
+                System.out.print("  Last Name: " + employee.getLastName());
+                System.out.println("  Salary: " + employee.getSalary());
+            }
+
+            tx.commit();
+        } catch (HibernateException e) {
+            if (tx!=null) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+    }
+
+```
+
 ### Limitations
 
 At this early stage 
