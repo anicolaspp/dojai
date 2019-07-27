@@ -8,6 +8,12 @@ We should be able to run queries that do not involve more than one table. In oth
 
 - [Plain SQL](https://github.com/anicolaspp/dojai/blob/master/README.md#plain-sql)
 - [Working with Hibernate](https://github.com/anicolaspp/dojai/blob/master/README.md#working-with-hibernate)
+    - [Hibernate Configuration](https://github.com/anicolaspp/dojai/blob/master/README.md#hibernate-configuration)
+    - [Entity Definition](https://github.com/anicolaspp/dojai/blob/master/README.md#our-hibernate-employee-entity)
+    - [Running Hibernate Queries](https://github.com/anicolaspp/dojai/blob/master/README.md#running-hibernate-queries)
+        - [Adding an Employee](https://github.com/anicolaspp/dojai/blob/master/README.md#adding-an-employee)
+        - [Loading all Employees](https://github.com/anicolaspp/dojai/blob/master/README.md#loading-all-employees)
+- [Limitation](https://github.com/anicolaspp/dojai/blob/master/README.md#limitations)
 
 ### Plain SQL
 
