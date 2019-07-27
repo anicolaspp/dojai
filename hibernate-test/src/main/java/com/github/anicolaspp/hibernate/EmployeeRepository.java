@@ -5,6 +5,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
+import java.util.List;
+
 public class EmployeeRepository {
     private final SessionFactory factory;
 
@@ -38,15 +40,17 @@ public class EmployeeRepository {
 
         try {
             tx = session.beginTransaction();
-            val employees = session.createQuery("select id, firstName from Employee").list();
+            List<Employee> employees = session.createQuery("FROM Employee").getResultList();
+
+
             for (val obj : employees) {
 
-                System.out.println(obj.toString());
-
-                val employee = (Employee) obj;
-                System.out.print("  First Name: " + employee.getFirstName());
-                System.out.print("  Last Name: " + employee.getLastName());
-                System.out.println("  Salary: " + employee.getSalary());
+                System.out.println(obj);
+//
+//                val employee = (Employee) obj;
+//                System.out.print("  First Name: " + employee.getFirstName());
+//                System.out.print("  Last Name: " + employee.getLastName());
+//                System.out.println("  Salary: " + employee.getSalary());
             }
             tx.commit();
         } catch (HibernateException e) {

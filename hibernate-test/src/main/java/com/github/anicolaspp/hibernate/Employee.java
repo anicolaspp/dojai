@@ -1,5 +1,6 @@
 package com.github.anicolaspp.hibernate;
 
+import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.Column;
@@ -20,6 +21,7 @@ create table EMPLOYEE (
  */
 @Entity
 @Table(name = "`/user/mapr/tables/employee`")
+@ToString
 public class Employee {
 
     @Id
@@ -44,9 +46,9 @@ public class Employee {
         id = "\"" + UUID.randomUUID().toString() + "\"";
     }
 
-    public Employee(String fname, String lname, int salary) {
-        this.firstName = fname;
-        this.lastName = lname;
+    public Employee(String firstName, String lastName, int salary) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.salary = salary;
     }
 
