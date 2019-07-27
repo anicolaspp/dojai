@@ -1,6 +1,7 @@
 package com.github.anicolaspp.sql;
 
 import com.github.anicolaspp.db.RunnableQuery;
+import lombok.val;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -29,17 +30,28 @@ public class DojaiPreparedStatement implements PreparedStatement {
     private final String sql;
     private String mutableSQL;
 
-    private long numberOfQuestions;
     private int numberOfReplacements = 0;
 
     private org.ojai.store.Connection ojaiConnection;
 
     public DojaiPreparedStatement(String sql, org.ojai.store.Connection ojaiConnection) {
         this.sql = sql;
-        this.mutableSQL = sql;
-        this.numberOfQuestions = sql.chars().filter(n -> ((char) n) == '?').count();
-
         this.ojaiConnection = ojaiConnection;
+
+        resetStatement(sql);
+    }
+
+    private void resetStatement(String sql) {
+        this.mutableSQL = sql;
+        this.numberOfReplacements = 0;
+    }
+
+    private <A> A runAndReset(RunnableQuery query, Func<RunnableQuery, A> fn) throws SQLException {
+        val result = fn.apply(query);
+
+        resetStatement(this.sql);
+
+        return result;
     }
 
     @Override
@@ -48,16 +60,14 @@ public class DojaiPreparedStatement implements PreparedStatement {
 
         System.out.println(String.format("executeQuery: %s", mutableSQL));
 
-        return RunnableQuery.from(mutableSQL).executeQueryWith(ojaiConnection);
+        return runAndReset(RunnableQuery.from(mutableSQL), query -> query.executeQueryWith(ojaiConnection));
     }
 
     @Override
     public int executeUpdate() throws SQLException {
         this.mutableSQL = fillWithNull(mutableSQL);
 
-        System.out.println(String.format("executeUpdate: %s", mutableSQL));
-
-        return RunnableQuery.from(mutableSQL).executeUpdateWith(ojaiConnection);
+        return runAndReset(RunnableQuery.from(mutableSQL), query -> query.executeUpdateWith(ojaiConnection));
     }
 
     private String fillWithNull(String sql) {

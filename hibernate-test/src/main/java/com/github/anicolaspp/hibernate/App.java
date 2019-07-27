@@ -19,7 +19,7 @@ public class App {
     private static SessionFactory buildSessionFactory() {
         try {
             val configuration = new Configuration();
-            configuration.setProperty("hibernate.connection.url", "dojai:mapr:");
+            configuration.setProperty("hibernate.connection.url", "dojai:mapr:mem:");
 
             Class.forName("com.github.anicolaspp.sql.DojaiDriver");
 
@@ -55,9 +55,9 @@ public class App {
     private static void addEmployees(SessionFactory factory) {
         val repository = new EmployeeRepository(factory);
 
-//        val empID1 = repository.addEmployee("Zarai", "Ali", 1000);
-//        val empID2 = repository.addEmployee("Daisy", "Das", 5000);
-//        repository.addEmployee("Johnn", "Pau", 10000);
+        val empID1 = repository.addEmployee("Zarai", "Ali", 1000);
+        val empID2 = repository.addEmployee("Daisy", "Das", 5000);
+        repository.addEmployee("Johnn", "Pau", 10000);
 
 
         repository.listEmployees();

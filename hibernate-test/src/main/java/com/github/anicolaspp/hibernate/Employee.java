@@ -20,7 +20,7 @@ create table EMPLOYEE (
 );
  */
 @Entity
-@Table(name = "`/user/mapr/tables/employee`")
+@Table(name = "`anicolaspp/user/mapr/tables/employee`")
 @ToString
 public class Employee {
 
