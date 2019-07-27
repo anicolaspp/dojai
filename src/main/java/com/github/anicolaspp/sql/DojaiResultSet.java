@@ -73,7 +73,7 @@ public class DojaiResultSet implements ResultSet {
     }
 
     private void checkReadNull(String label) {
-        if (current.getValue(label) == null) {
+        if (current.getValue(toRowLabel(label)) == null) {
             this.lastReadWasNull = true;
         }
     }
@@ -416,7 +416,13 @@ public class DojaiResultSet implements ResultSet {
     public int findColumn(String columnLabel) throws SQLException {
         checkColumn(columnLabel);
 
-        return schema.indexOf(toRowLabel(columnLabel));
+        for (int i = 0; i < schema.size(); i++) {
+            if (schema.get(i).getValue().equals(columnLabel)) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     @Override
@@ -522,7 +528,7 @@ public class DojaiResultSet implements ResultSet {
 
     @Override
     public int getFetchSize() throws SQLException {
-        return 0;
+        return 1;
     }
 
     @Override
@@ -1152,21 +1158,30 @@ public class DojaiResultSet implements ResultSet {
 
     @Override
     public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
+        System.out.println("HERE");
+
         return null;
     }
 
     @Override
     public <T> T getObject(String columnLabel, Class<T> type) throws SQLException {
+        System.out.println("HERE");
+
         return null;
     }
 
     @Override
     public <T> T unwrap(Class<T> iface) throws SQLException {
+        System.out.println("HERE");
+
         return null;
     }
 
     @Override
     public boolean isWrapperFor(Class<?> iface) throws SQLException {
+
+        System.out.println("HERE");
+
         return false;
     }
 }
