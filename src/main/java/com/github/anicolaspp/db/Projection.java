@@ -27,6 +27,10 @@ public class Projection<A> {
     }
 
     public Document apply(Function<A, String> columnNameExtractor, Connection connection) {
+        if (columns.size() == 0) {
+            return connection.newDocument(document);
+        }
+
         Map<String, Object> docMap = columns
                 .stream()
                 .map(column -> {
