@@ -1,6 +1,5 @@
-package com.github.anicolaspp;
+package com.github.anicolaspp.db;
 
-import com.github.anicolaspp.db.Projection;
 import com.github.anicolaspp.ojai.JavaOjaiTesting;
 import lombok.val;
 import org.junit.Test;
