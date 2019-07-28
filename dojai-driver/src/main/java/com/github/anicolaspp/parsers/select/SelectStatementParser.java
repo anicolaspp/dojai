@@ -1,15 +1,15 @@
 package com.github.anicolaspp.parsers.select;
 
 import com.github.anicolaspp.db.IdGenerator;
+import com.github.anicolaspp.db.Table;
+import com.github.anicolaspp.parsers.update.UpdateStatementParser;
 import com.github.anicolaspp.db.Projection;
 import com.github.anicolaspp.db.QueryFunctions;
 import com.github.anicolaspp.db.QueryLimit;
 import com.github.anicolaspp.db.StoreManager;
-import com.github.anicolaspp.db.Table;
 import com.github.anicolaspp.parsers.ChainParser;
 import com.github.anicolaspp.parsers.ParserQueryResult;
 import com.github.anicolaspp.parsers.ParserType;
-import com.github.anicolaspp.parsers.update.UpdateStatementParser;
 import lombok.val;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.Statement;

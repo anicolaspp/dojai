@@ -1,8 +1,8 @@
 package com.github.anicolaspp.parsers.delete;
 
+import com.github.anicolaspp.parsers.select.SelectField;
 import com.github.anicolaspp.parsers.ParserQueryResult;
 import com.github.anicolaspp.parsers.ParserType;
-import com.github.anicolaspp.parsers.select.SelectField;
 import lombok.Getter;
 import lombok.Setter;
 import org.ojai.Value;

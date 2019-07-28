@@ -21,7 +21,7 @@ public class App {
             val configuration = new Configuration();
             configuration.setProperty("hibernate.connection.url", "dojai:mapr:mem:");
 
-            Class.forName("com.github.anicolaspp.sql.DojaiDriver");
+            Class.forName("anicolaspp.sql.DojaiDriver");
 
             DriverManager.registerDriver(InMemoryDriver.apply());
 

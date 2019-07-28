@@ -1,7 +1,7 @@
 package com.github.anicolaspp.sql;
 
-import com.github.anicolaspp.parsers.ChainParser;
 import com.github.anicolaspp.db.connections.DirectConnection;
+import com.github.anicolaspp.parsers.ChainParser;
 import lombok.val;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import org.ojai.store.DriverManager;

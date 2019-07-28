@@ -1,13 +1,13 @@
 package com.github.anicolaspp.parsers.insert;
 
+import com.github.anicolaspp.db.Table;
+import com.github.anicolaspp.parsers.select.SelectStatementParser;
 import com.github.anicolaspp.parsers.ChainParser;
 import com.github.anicolaspp.parsers.ParserQueryResult;
 import com.github.anicolaspp.parsers.ParserType;
 import com.github.anicolaspp.db.Projection;
 import com.github.anicolaspp.db.QueryFunctions;
-import com.github.anicolaspp.db.Table;
 import com.github.anicolaspp.parsers.delete.DeleteStatementParser;
-import com.github.anicolaspp.parsers.select.SelectStatementParser;
 import javafx.util.Pair;
 import lombok.val;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;

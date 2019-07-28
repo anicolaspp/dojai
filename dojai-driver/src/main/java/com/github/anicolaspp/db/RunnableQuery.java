@@ -1,8 +1,8 @@
 package com.github.anicolaspp.db;
 
-import com.github.anicolaspp.parsers.ChainParser;
 import com.github.anicolaspp.parsers.delete.DeleteParserResult;
 import com.github.anicolaspp.parsers.insert.InsertParserResult;
+import com.github.anicolaspp.parsers.ChainParser;
 import com.github.anicolaspp.sql.DojaiResultSet;
 import lombok.val;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
