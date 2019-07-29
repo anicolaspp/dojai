@@ -1,12 +1,12 @@
 package com.github.anicolaspp.parsers.delete;
 
+import com.github.anicolaspp.db.QueryFunctions;
 import com.github.anicolaspp.db.Table;
-import com.github.anicolaspp.parsers.select.SelectField;
-import com.github.anicolaspp.parsers.unknown.UnsupportedStatementParser;
 import com.github.anicolaspp.parsers.ChainParser;
 import com.github.anicolaspp.parsers.ParserQueryResult;
 import com.github.anicolaspp.parsers.ParserType;
-import com.github.anicolaspp.db.QueryFunctions;
+import com.github.anicolaspp.parsers.select.SelectField;
+import com.github.anicolaspp.parsers.unknown.UnsupportedStatementParser;
 import lombok.val;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.delete.Delete;

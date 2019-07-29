@@ -86,6 +86,12 @@
       <version>1.0.7</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.github.anicolaspp</groupId>
+      <artifactId>ojai-scala-generics_2.11</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+
 
     <dependency>
       <groupId>org.hibernate</groupId>

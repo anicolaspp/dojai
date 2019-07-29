@@ -1,6 +1,7 @@
 package com.github.anicolaspp.db;
 
 import com.github.anicolaspp.parsers.select.SelectField;
+import com.mapr.ojai.store.impl.Values;
 import lombok.val;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
@@ -10,6 +11,7 @@ import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
 import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.MinorThan;
 import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
+import org.ojai.Value;
 import org.ojai.store.Connection;
 import org.ojai.store.QueryCondition;
 
@@ -74,53 +76,92 @@ public class WhereParser {
     private String getName(String label) {
         return schema
                 .stream()
-                .filter(field -> field.getAlias() != null)
-                .filter(field -> field.getAlias().equals(label))
+                .filter(field -> field.getValue().equals(label))
                 .findAny()
                 .map(SelectField::getName)
                 .orElse(label);
     }
 
-    private QueryCondition cmp(String field, String value, QueryCondition.Op op) {
-        return connection
-                .newCondition()
-                .is(getName(field), op, value.replace("'",""))
-                .build();
+    private QueryCondition cmp(String field, Value value, QueryCondition.Op op) {
+
+        if (value instanceof Values.FloatValue) {
+            return connection.newCondition().is(getName(field), op, value.getFloat()).build();
+        }
+
+        if (value instanceof Values.StringValue) {
+            return connection.newCondition().is(getName(field), op, value.getString()).build();
+        }
+        if (value instanceof Values.LongValue) {
+            return connection.newCondition().is(getName(field), op, value.getLong()).build();
+        }
+
+        if (value instanceof Values.IntValue) {
+            return connection.newCondition().is(getName(field), op, value.getInt()).build();
+        }
+
+        if (value instanceof Values.DoubleValue) {
+            return connection.newCondition().is(getName(field), op, value.getDouble()).build();
+        }
+
+        if (value instanceof Values.DateValue) {
+            return connection.newCondition().is(getName(field), op, value.getDate()).build();
+        }
+
+        if (value instanceof Values.TimestampValue) {
+            return connection.newCondition().is(getName(field), op, value.getTimestamp()).build();
+        }
+
+        if (value instanceof Values.BooleanValue) {
+            return connection.newCondition().is(getName(field), op, value.getBoolean()).build();
+        }
+
+        if (value instanceof Values.DecimalValue) {
+            return connection.newCondition().is(getName(field), op, value.getDecimal()).build();
+        }
+
+        if (value instanceof Values.ShortValue) {
+            return connection.newCondition().is(getName(field), op, value.getShort()).build();
+        }
+
+        if (value instanceof Values.TimeValue) {
+            return connection.newCondition().is(getName(field), op, value.getTime()).build();
+        }
+
+        return connection.newCondition().build();
     }
 
     private QueryCondition parseMinorThan(MinorThan minorThan) {
         return cmp(
                 minorThan.getLeftExpression().toString(),
-                minorThan.getRightExpression().toString(),
+                QueryFunctions.valueFromExpression(minorThan.getRightExpression()),
                 QueryCondition.Op.LESS);
     }
 
     private QueryCondition parseMinorThanEquals(MinorThanEquals minorThanEquals) {
         return cmp(
                 minorThanEquals.getLeftExpression().toString(),
-                minorThanEquals.getRightExpression().toString(),
+                QueryFunctions.valueFromExpression(minorThanEquals.getRightExpression()),
                 QueryCondition.Op.LESS_OR_EQUAL);
     }
 
     private QueryCondition parseGreaterThan(GreaterThan greaterThan) {
         return cmp(
                 greaterThan.getLeftExpression().toString(),
-                greaterThan.getRightExpression().toString(),
+                QueryFunctions.valueFromExpression(greaterThan.getRightExpression()),
                 QueryCondition.Op.GREATER);
     }
 
     private QueryCondition parseGreaterThanEquals(GreaterThanEquals greaterThanEquals) {
         return cmp(
                 greaterThanEquals.getLeftExpression().toString(),
-                greaterThanEquals.getRightExpression().toString(),
+                QueryFunctions.valueFromExpression(greaterThanEquals.getRightExpression()),
                 QueryCondition.Op.GREATER_OR_EQUAL);
     }
 
     private QueryCondition parseEqualsTo(EqualsTo equalsTo) {
         return cmp(
                 equalsTo.getLeftExpression().toString(),
-                equalsTo.getRightExpression().toString(),
+                QueryFunctions.valueFromExpression(equalsTo.getRightExpression()),
                 QueryCondition.Op.EQUAL);
     }
-
 }
