@@ -17,6 +17,6 @@ public class IdGenerator {
     }
 
     public String nextId() {
-        return new scala.util.Random().nextString(3) + UUID.randomUUID().toString();
+        return  UUID.randomUUID().toString();
     }
 }
