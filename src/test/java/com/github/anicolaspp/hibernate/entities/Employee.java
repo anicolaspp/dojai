@@ -1,4 +1,4 @@
-package com.github.anicolaspp.hibernate;
+package com.github.anicolaspp.hibernate.entities;
 
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
@@ -10,15 +10,6 @@ import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import java.util.UUID;
 
-/*
-create table EMPLOYEE (
-   id serial,
-   first_name VARCHAR(20) default NULL,
-   last_name  VARCHAR(20) default NULL,
-   salary     INT  default NULL,
-   PRIMARY KEY (id)
-);
- */
 @Entity
 @Table(name = "`anicolaspp/user/mapr/tables/employee`")
 @ToString
@@ -43,7 +34,7 @@ public class Employee {
 
     @PrePersist
     private void generateCodeIdentifier(){
-        id = "\"" + UUID.randomUUID().toString() + "\"";
+        id = "`" + UUID.randomUUID().toString() + "`";
     }
 
     public Employee(String firstName, String lastName, int salary) {
@@ -53,7 +44,7 @@ public class Employee {
     }
 
     public String getId() {
-        return "\"" + id + "\"";
+        return id;
     }
 
     public void setId(String id) {

@@ -1,20 +1,22 @@
-package com.github.anicolaspp.hibernate;
+package com.github.anicolaspp.hibernate.repositories;
 
+import com.github.anicolaspp.hibernate.entities.Employee;
 import lombok.val;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class EmployeeRepository {
     private final SessionFactory factory;
 
-    public EmployeeRepository(SessionFactory factory){
+    public EmployeeRepository(SessionFactory factory) {
         this.factory = factory;
     }
 
-    public String addEmployee(String fname, String lname, int salary){
+    public String addEmployee(String fname, String lname, int salary) {
         val session = factory.openSession();
         Transaction tx = null;
         String employeeID = "null";
@@ -22,11 +24,11 @@ public class EmployeeRepository {
         try {
             tx = session.beginTransaction();
             val employee = new Employee(fname, lname, salary);
-            System.out.println(session.save(employee));
+            employeeID = (String) session.save(employee);
 
             tx.commit();
         } catch (HibernateException e) {
-            if (tx!=null) tx.rollback();
+            if (tx != null) tx.rollback();
             e.printStackTrace();
         } finally {
             session.close();
@@ -34,52 +36,47 @@ public class EmployeeRepository {
         return employeeID;
     }
 
-    public void listEmployees( ){
+    public List<Employee> listEmployees() {
         val session = factory.openSession();
         Transaction tx = null;
 
+        List<Employee> employees = new ArrayList<>();
+
         try {
             tx = session.beginTransaction();
-            List<Employee> employees = session.createQuery("FROM Employee").getResultList();
 
+            employees.addAll(session.createQuery("FROM Employee").getResultList());
 
-            for (val obj : employees) {
-
-                System.out.println(obj);
-//
-//                val employee = (Employee) obj;
-//                System.out.print("  First Name: " + employee.getFirstName());
-//                System.out.print("  Last Name: " + employee.getLastName());
-//                System.out.println("  Salary: " + employee.getSalary());
-            }
             tx.commit();
         } catch (HibernateException e) {
-            if (tx!=null) tx.rollback();
+            if (tx != null) tx.rollback();
             e.printStackTrace();
         } finally {
             session.close();
         }
+
+        return employees;
     }
 
-    public void updateEmployee(Integer EmployeeID, int salary ){
+    public void updateEmployee(Integer EmployeeID, int salary) {
         val session = factory.openSession();
         Transaction tx = null;
 
         try {
             tx = session.beginTransaction();
             val employee = session.get(Employee.class, EmployeeID);
-            employee.setSalary( salary );
+            employee.setSalary(salary);
             session.update(employee);
             tx.commit();
         } catch (HibernateException e) {
-            if (tx!=null) tx.rollback();
+            if (tx != null) tx.rollback();
             e.printStackTrace();
         } finally {
             session.close();
         }
     }
 
-    public void deleteEmployee(Integer EmployeeID){
+    public void deleteEmployee(Integer EmployeeID) {
         val session = factory.openSession();
         Transaction tx = null;
 
@@ -89,7 +86,7 @@ public class EmployeeRepository {
             session.delete(employee);
             tx.commit();
         } catch (HibernateException e) {
-            if (tx!=null) tx.rollback();
+            if (tx != null) tx.rollback();
             e.printStackTrace();
         } finally {
             session.close();
