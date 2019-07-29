@@ -7,6 +7,7 @@ import net.sf.jsqlparser.statement.select.Limit;
 import org.junit.Test;
 
 import java.util.Random;
+import java.util.stream.Stream;
 
 public class LimitTest implements JavaOjaiTesting {
 
@@ -35,3 +36,4 @@ public class LimitTest implements JavaOjaiTesting {
         assert query.asJsonString().equals(connection().newQuery().limit(limit).asJsonString());
     }
 }
+
