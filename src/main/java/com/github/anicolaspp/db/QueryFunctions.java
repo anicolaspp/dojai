@@ -6,6 +6,7 @@ import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.TimestampValue;
 import net.sf.jsqlparser.schema.Column;
 import org.ojai.Value;
@@ -45,6 +46,10 @@ public class QueryFunctions {
 
         if (expression instanceof TimestampValue) {
             return new Values.TimestampValue(new OTimestamp(((TimestampValue) expression).getValue().getTime()));
+        }
+
+        if (expression instanceof StringValue) {
+            return new Values.StringValue(((StringValue) expression).getValue());
         }
 
         return Values.NULL;

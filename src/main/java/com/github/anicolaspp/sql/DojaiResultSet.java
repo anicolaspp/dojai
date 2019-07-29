@@ -93,7 +93,7 @@ public class DojaiResultSet implements ResultSet {
 
         boolean exists = schema
                 .stream()
-                .anyMatch(field -> field.getName().equals(label) || field.getAlias().equals(label));
+                .anyMatch(field -> field.getValue().equals(label));
 
         if (!exists) {
             throw new SQLException("Invalid column label: " + label);
@@ -101,12 +101,13 @@ public class DojaiResultSet implements ResultSet {
     }
 
     private String toRowLabel(String label) {
-        for (val field: schema) {
+        for (val field : schema) {
+
             if (field.getName().equals(label)) {
                 return label;
             }
 
-            if (field.getAlias().equals(label)){
+            if (field.getAlias() != null && field.getAlias().equals(label)) {
                 return field.getName();
             }
         }
