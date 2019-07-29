@@ -1,5 +1,6 @@
 package com.github.anicolaspp.hibernate.entities;
 
+import lombok.Data;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -10,6 +11,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import java.util.UUID;
 
+@Data
 @Entity
 @Table(name = "`anicolaspp/user/mapr/tables/employee`")
 @ToString
@@ -40,38 +42,6 @@ public class Employee {
     public Employee(String firstName, String lastName, int salary) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.salary = salary;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String first_name) {
-        this.firstName = first_name;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String last_name) {
-        this.lastName = last_name;
-    }
-
-    public int getSalary() {
-        return salary;
-    }
-
-    public void setSalary(int salary) {
         this.salary = salary;
     }
 }
