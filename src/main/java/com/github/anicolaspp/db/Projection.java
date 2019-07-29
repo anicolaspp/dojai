@@ -1,5 +1,6 @@
 package com.github.anicolaspp.db;
 
+import com.mapr.ojai.store.impl.Values;
 import javafx.util.Pair;
 import lombok.val;
 import org.ojai.Document;
@@ -38,7 +39,7 @@ public class Projection<A> {
 
                     val value = document.getValue(columnName);
 
-                    return new Pair<>(columnName, value);
+                    return new Pair<>(columnName, value == null ? Values.NULL : value);
                 })
                 .collect(Collectors.toMap(Pair::getKey, Pair::getValue));
 
