@@ -133,35 +133,35 @@ public class WhereParser {
     private QueryCondition parseMinorThan(MinorThan minorThan) {
         return cmp(
                 minorThan.getLeftExpression().toString(),
-                QueryFunctions.valueFromExpression(minorThan.getRightExpression()),
+                ValueExtractor.from(minorThan.getRightExpression()),
                 QueryCondition.Op.LESS);
     }
 
     private QueryCondition parseMinorThanEquals(MinorThanEquals minorThanEquals) {
         return cmp(
                 minorThanEquals.getLeftExpression().toString(),
-                QueryFunctions.valueFromExpression(minorThanEquals.getRightExpression()),
+                ValueExtractor.from(minorThanEquals.getRightExpression()),
                 QueryCondition.Op.LESS_OR_EQUAL);
     }
 
     private QueryCondition parseGreaterThan(GreaterThan greaterThan) {
         return cmp(
                 greaterThan.getLeftExpression().toString(),
-                QueryFunctions.valueFromExpression(greaterThan.getRightExpression()),
+                ValueExtractor.from(greaterThan.getRightExpression()),
                 QueryCondition.Op.GREATER);
     }
 
     private QueryCondition parseGreaterThanEquals(GreaterThanEquals greaterThanEquals) {
         return cmp(
                 greaterThanEquals.getLeftExpression().toString(),
-                QueryFunctions.valueFromExpression(greaterThanEquals.getRightExpression()),
+                ValueExtractor.from(greaterThanEquals.getRightExpression()),
                 QueryCondition.Op.GREATER_OR_EQUAL);
     }
 
     private QueryCondition parseEqualsTo(EqualsTo equalsTo) {
         return cmp(
                 equalsTo.getLeftExpression().toString(),
-                QueryFunctions.valueFromExpression(equalsTo.getRightExpression()),
+                ValueExtractor.from(equalsTo.getRightExpression()),
                 QueryCondition.Op.EQUAL);
     }
 }

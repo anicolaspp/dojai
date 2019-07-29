@@ -1,6 +1,6 @@
 package com.github.anicolaspp.parsers.delete;
 
-import com.github.anicolaspp.db.QueryFunctions;
+import com.github.anicolaspp.db.QueryConditionBuilder;
 import com.github.anicolaspp.db.Table;
 import com.github.anicolaspp.parsers.ChainParser;
 import com.github.anicolaspp.parsers.ParserQueryResult;
@@ -47,7 +47,10 @@ public class DeleteStatementParser implements ChainParser {
         val query = connection
                 .newQuery()
                 .select("_id")
-                .where(QueryFunctions.getQueryConditionFrom(delete.getWhere(), connection, Collections.singletonList(new SelectField("_id", "_id"))));
+                .where(QueryConditionBuilder
+                        .from(delete.getWhere())
+                        .buildWith(connection, Collections.singletonList(new SelectField("_id", "_id"))));
+
 
         val store = connection.getStore(table);
 

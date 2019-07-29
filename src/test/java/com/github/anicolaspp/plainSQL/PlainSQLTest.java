@@ -4,13 +4,20 @@ import com.github.anicolaspp.ojai.JavaOjaiTesting;
 import com.mapr.ojai.store.impl.InMemoryDriver;
 import lombok.val;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.ojai.store.DriverManager;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+
 public class PlainSQLTest implements JavaOjaiTesting {
+
+    @BeforeEach
+    public void init() {
+        connection().close();
+    }
 
     @Test
     public void testSelect() throws SQLException, ClassNotFoundException {
@@ -19,7 +26,7 @@ public class PlainSQLTest implements JavaOjaiTesting {
 
         String sql = "select _id, name as fname from `%s` limit 10";
 
-        String table = "anicolaspp/user/mapr/tables/employees";
+        String table = "anicolaspp/user/mapr/tables/names";
 
         String selectSQL = String.format(sql, table);
 
@@ -27,7 +34,7 @@ public class PlainSQLTest implements JavaOjaiTesting {
 
         val statement = connection.createStatement();
 
-        String insertSQL = "INSERT INTO `anicolaspp/user/mapr/tables/employees` (_id, name, age) values ('s001', nick, 30)";
+        String insertSQL = "INSERT INTO `anicolaspp/user/mapr/tables/names` (_id, name, age) values ('s001', nick, 30)";
 
         assert statement.executeUpdate(insertSQL) == 1;
 
@@ -48,14 +55,12 @@ public class PlainSQLTest implements JavaOjaiTesting {
 
         String table = "anicolaspp/user/mapr/tables/employees";
 
-        String selectSQL = String.format(sql, table);
-
         val connection = java.sql.DriverManager.getConnection("dojai:mapr:mem:");
 
         val statement = connection.createStatement();
 
 
-        String insertSQL = "INSERT INTO `anicolaspp/user/mapr/tables/t1` (_id, name, age) values ('%s', %s, %d)";
+        String insertSQL = "INSERT INTO `anicolaspp/user/mapr/tables/t1` (_id, name, age) values ('%s', '%s', %d)";
         assert addSome(insertSQL, 1, connection) == 1;
 
 //        assert statement.executeUpdate(insertSQL) == 1;
@@ -64,12 +69,13 @@ public class PlainSQLTest implements JavaOjaiTesting {
 
         assert statement.executeUpdate(insertSubSelect) == 1;
 
+        String selectSQL = String.format(sql, table);
         val result = statement.executeQuery(selectSQL);
 
         assert result.next();
 
-        assert result.getString("_id").equals("s001");
-        assert result.getString("fname").equals("nick");
+        assert result.getString("_id").equals("0");
+        assert result.getString("fname").equals("0");
     }
 
     @Test
@@ -77,32 +83,30 @@ public class PlainSQLTest implements JavaOjaiTesting {
         Class.forName("com.github.anicolaspp.sql.DojaiDriver");
         DriverManager.registerDriver(InMemoryDriver.apply());
 
-        String insertSQL = "INSERT INTO `anicolaspp/user/mapr/tables/employees` (_id, name, age) values ('%s', %s, %d)";
+        String insertSQL = "INSERT INTO `anicolaspp/user/mapr/tables/delete` (_id, name, age) values ('%s', '%s', %d)";
         val connection = java.sql.DriverManager.getConnection("dojai:mapr:mem:");
 
         assert addSome(insertSQL, 10, connection) == 10;
 
-        String deleteSQL = "DELETE FROM `anicolaspp/user/mapr/tables/employees` WHERE age = 9";
+        String deleteSQL = "DELETE FROM `anicolaspp/user/mapr/tables/delete` WHERE age = 9";
 
         assert connection.createStatement().executeUpdate(deleteSQL) == 1;
 
-        val result = getAll(connection);
+        val result = getAll(connection, "anicolaspp/user/mapr/tables/delete");
 
         int count = 0;
 
         while (result.next()) {
             count++;
 
-            assert result.getInt("age") != 9;
+            assert result.getLong("age") != 9;
         }
 
         assert count == 9;
     }
 
-    private ResultSet getAll(Connection connection) throws SQLException {
+    private ResultSet getAll(Connection connection, String table) throws SQLException {
         String sql = "select _id, name as fname, age from `%s` limit 10";
-
-        String table = "anicolaspp/user/mapr/tables/employees";
 
         return connection.createStatement().executeQuery(String.format(sql, table));
     }

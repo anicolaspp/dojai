@@ -1,6 +1,5 @@
 package com.github.anicolaspp.db;
 
-import com.github.anicolaspp.parsers.select.SelectField;
 import com.mapr.ojai.store.impl.Values;
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
@@ -10,24 +9,12 @@ import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.TimestampValue;
 import net.sf.jsqlparser.schema.Column;
 import org.ojai.Value;
-import org.ojai.store.Connection;
-import org.ojai.store.QueryCondition;
 import org.ojai.types.ODate;
 import org.ojai.types.OTimestamp;
 
-import java.util.List;
+public class ValueExtractor {
 
-
-public class QueryFunctions {
-
-    private QueryFunctions() {
-    }
-
-    public static QueryCondition getQueryConditionFrom(Expression where, Connection connection, List<SelectField> schema) {
-        return new WhereParser(connection, schema).parse(where);
-    }
-
-    public static Value valueFromExpression(Expression expression) {
+    public static Value from(Expression expression) {
         if (expression instanceof Column) {
             return new Values.StringValue(((Column) expression).getColumnName());
         }
