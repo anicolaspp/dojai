@@ -1,6 +1,7 @@
 package com.github.anicolaspp.hibernate.entities;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -11,14 +12,16 @@ import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import java.util.UUID;
 
-@Data
+
 @Entity
 @Table(name = "`anicolaspp/user/mapr/tables/employee`")
 @ToString
+@Getter
+@Setter
 public class Employee {
 
     @Id
-    @GenericGenerator(name="system-uuid", strategy = "uuid")
+    @GenericGenerator(name = "system-uuid", strategy = "uuid")
     @Column(name = "_id")
     private String id;
 
@@ -35,7 +38,7 @@ public class Employee {
     }
 
     @PrePersist
-    private void generateCodeIdentifier(){
+    private void generateCodeIdentifier() {
         id = "`" + UUID.randomUUID().toString() + "`";
     }
 
