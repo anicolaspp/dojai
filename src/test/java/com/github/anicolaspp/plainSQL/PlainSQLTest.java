@@ -3,6 +3,7 @@ package com.github.anicolaspp.plainSQL;
 import com.github.anicolaspp.ojai.JavaOjaiTesting;
 import com.mapr.ojai.store.impl.InMemoryDriver;
 import lombok.val;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.ojai.store.DriverManager;
@@ -103,6 +104,26 @@ public class PlainSQLTest implements JavaOjaiTesting {
         }
 
         assert count == 9;
+    }
+
+    @Test
+    @Ignore
+    public void testDeleteAll() throws ClassNotFoundException, SQLException {
+        Class.forName("com.github.anicolaspp.sql.DojaiDriver");
+//        DriverManager.registerDriver(InMemoryDriver.apply());
+
+        String insertSQL = "INSERT INTO `/user/mapr/tables/deleteall` (_id, name, age) values ('%s', '%s', %d)";
+        val connection = java.sql.DriverManager.getConnection("dojai:mapr:");
+
+        assert addSome(insertSQL, 10, connection) == 10;
+
+        String deleteSQL = "DELETE FROM `/user/mapr/tables/deleteall`";
+
+        assert connection.createStatement().executeUpdate(deleteSQL) == 10;
+
+        val result = getAll(connection, "/user/mapr/tables/deleteall");
+
+        assert !result.next();
     }
 
     private ResultSet getAll(Connection connection, String table) throws SQLException {
