@@ -1,6 +1,7 @@
 package com.github.anicolaspp.plainSQL;
 
 import com.github.anicolaspp.ojai.JavaOjaiTesting;
+import com.github.anicolaspp.sql.DojaiDriver;
 import com.mapr.ojai.store.impl.InMemoryDriver;
 import lombok.val;
 import org.junit.Ignore;
@@ -31,7 +32,7 @@ public class PlainSQLTest implements JavaOjaiTesting {
 
         String selectSQL = String.format(sql, table);
 
-        val connection = java.sql.DriverManager.getConnection("dojai:mapr:mem:");
+        val connection = java.sql.DriverManager.getConnection(DojaiDriver.JDBC_DOJAI_MAPR_MEM);
 
         val statement = connection.createStatement();
 
@@ -56,15 +57,13 @@ public class PlainSQLTest implements JavaOjaiTesting {
 
         String table = "anicolaspp/user/mapr/tables/employees";
 
-        val connection = java.sql.DriverManager.getConnection("dojai:mapr:mem:");
+        val connection = java.sql.DriverManager.getConnection(DojaiDriver.JDBC_DOJAI_MAPR_MEM);
 
         val statement = connection.createStatement();
 
 
         String insertSQL = "INSERT INTO `anicolaspp/user/mapr/tables/t1` (_id, name, age) values ('%s', '%s', %d)";
         assert addSome(insertSQL, 1, connection) == 1;
-
-//        assert statement.executeUpdate(insertSQL) == 1;
 
         String insertSubSelect = "INSERT INTO `anicolaspp/user/mapr/tables/employees` (_id, name, age) select _id, name as n from `anicolaspp/user/mapr/tables/t1`";
 
@@ -85,7 +84,7 @@ public class PlainSQLTest implements JavaOjaiTesting {
         DriverManager.registerDriver(InMemoryDriver.apply());
 
         String insertSQL = "INSERT INTO `anicolaspp/user/mapr/tables/delete` (_id, name, age) values ('%s', '%s', %d)";
-        val connection = java.sql.DriverManager.getConnection("dojai:mapr:mem:");
+        val connection = java.sql.DriverManager.getConnection(DojaiDriver.JDBC_DOJAI_MAPR_MEM);
 
         assert addSome(insertSQL, 10, connection) == 10;
 
@@ -110,10 +109,9 @@ public class PlainSQLTest implements JavaOjaiTesting {
     @Ignore
     public void testDeleteAll() throws ClassNotFoundException, SQLException {
         Class.forName("com.github.anicolaspp.sql.DojaiDriver");
-//        DriverManager.registerDriver(InMemoryDriver.apply());
 
         String insertSQL = "INSERT INTO `/user/mapr/tables/deleteall` (_id, name, age) values ('%s', '%s', %d)";
-        val connection = java.sql.DriverManager.getConnection("dojai:mapr:");
+        val connection = java.sql.DriverManager.getConnection(DojaiDriver.JDCB_DOJAI_MAPR);
 
         assert addSome(insertSQL, 10, connection) == 10;
 

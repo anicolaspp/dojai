@@ -3,6 +3,7 @@ package com.github.anicolaspp.hibernate;
 import com.github.anicolaspp.hibernate.entities.Employee;
 import com.github.anicolaspp.hibernate.repositories.EmployeeRepository;
 import com.github.anicolaspp.ojai.JavaOjaiTesting;
+import com.github.anicolaspp.sql.DojaiDriver;
 import com.mapr.ojai.store.impl.InMemoryDriver;
 import lombok.val;
 import org.hibernate.SessionFactory;
@@ -36,7 +37,7 @@ public class ReadWriteTest implements JavaOjaiTesting {
     private static SessionFactory buildSessionFactory() {
         try {
             val configuration = new Configuration();
-            configuration.setProperty("hibernate.connection.url", "dojai:mapr:mem:");
+            configuration.setProperty("hibernate.connection.url", DojaiDriver.JDBC_DOJAI_MAPR_MEM);
 
             DriverManager.registerDriver(InMemoryDriver.apply());
 

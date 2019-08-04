@@ -15,6 +15,9 @@ import java.util.logging.Logger;
 
 public class DojaiDriver implements Driver {
 
+    public static final String JDCB_DOJAI_MAPR = "jdcb:dojai:mapr:";
+    public static final String JDBC_DOJAI_MAPR_MEM = "jdbc:dojai:mapr:mem:";
+
     static {
         try {
             DriverManager.registerDriver(new DojaiDriver());
@@ -40,7 +43,7 @@ public class DojaiDriver implements Driver {
     }
 
     public boolean acceptsURL(String url) throws SQLException {
-        return url.equals("dojai:mapr:") || url.equals("dojai:mapr:mem:");
+        return url.equals(JDCB_DOJAI_MAPR) || url.equals(JDBC_DOJAI_MAPR_MEM);
     }
 
     public DriverPropertyInfo[] getPropertyInfo(String url, Properties info) throws SQLException {
@@ -64,9 +67,9 @@ public class DojaiDriver implements Driver {
     }
 
     private DirectConnection getConnectionTypeFrom(String url) {
-        if (url.equals("dojai:mapr:mem:")) {
+        if (url.equals(JDBC_DOJAI_MAPR_MEM)) {
             return new InMemoryConnection();
-        } else if (url.equals("dojai:mapr:")) {
+        } else if (url.equals(JDCB_DOJAI_MAPR)) {
             return new MapRDBConnection();
         } else {
             return null;
