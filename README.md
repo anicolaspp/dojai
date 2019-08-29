@@ -15,6 +15,14 @@ We should be able to run queries that do not involve more than one table. In oth
         - [Loading all Employees](https://github.com/anicolaspp/dojai/blob/master/README.md#loading-all-employees)
 - [Limitation](https://github.com/anicolaspp/dojai/blob/master/README.md#limitations)
 
+```xml
+<dependency>
+  <groupId>com.github.anicolaspp</groupId>
+  <artifactId>dojai</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
 ### Plain SQL
 
 The following get all records from a MapR Database table given some condition. 
