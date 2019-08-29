@@ -5,8 +5,8 @@ import java.sql.SQLException;
 /**
  * This is an Alias for Function<A, B> but allows us to throw SQLException.
  *
- * @param <A>
- * @param <B>
+ * @param <A> Input Type
+ * @param <B> Output Type
  */
 @FunctionalInterface
 public interface Func<A, B> {
