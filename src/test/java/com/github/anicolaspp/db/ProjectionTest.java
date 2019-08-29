@@ -47,6 +47,10 @@ public class ProjectionTest implements JavaOjaiTesting {
 
         int numberOfColumnsToProject = rnd.nextInt(numberOfColumns);
 
+        if (numberOfColumnsToProject == 0) {
+            numberOfColumns = 1;
+        }
+
         List<String> toProject = new ArrayList<>();
 
         for (int i = 0; i < numberOfColumnsToProject; i++) {
@@ -63,6 +67,9 @@ public class ProjectionTest implements JavaOjaiTesting {
                 .apply(Function.identity(), connection());
 
         val map = projected.asMap();
+
+        System.out.println("MAP SIZE " + map.size());
+        System.out.println("numberOfColumnsToProject " + numberOfColumnsToProject);
 
         assert map.size() == numberOfColumnsToProject;
 
