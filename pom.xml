@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-<!--  <packaging>pom</packaging>-->
+  <!--  <packaging>pom</packaging>-->
 
   <parent>
     <groupId>com.simpligility.maven</groupId>
@@ -14,11 +14,52 @@
 
   <groupId>com.github.anicolaspp</groupId>
   <artifactId>dojai</artifactId>
+  <packaging>jar</packaging>
+  <name>dojai</name>
   <version>1.0.0-SNAPSHOT</version>
+  <description>A JDBC Driver for OJAI</description>
+  <url>https://github.com/anicolaspp/dojai</url>
 
-  <modules>
-    <!--    <module>hibernate-test</module>-->
-  </modules>
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Nicolas A Perez</name>
+      <email>anicolaspp@gmail.com</email>
+      <organization>anicolaspp</organization>
+      <organizationUrl>https://github.com/anicolaspp</organizationUrl>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:git@github.com:anicolaspp/dojai.git</connection>
+    <developerConnection>scm:git:git@github.com:anicolaspp/dojai.git</developerConnection>
+    <url>https://github.com/anicolaspp/dojai</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+    <repository>
+      <id>ossrh</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+
+  <issueManagement>
+    <system>Github</system>
+    <url>https://github.com/anicolaspp/dojai/issues</url>
+  </issueManagement>
+
 
   <repositories>
     <repository>
@@ -49,50 +90,41 @@
       <version>1.18.8</version>
       <scope>provided</scope>
     </dependency>
-
     <dependency>
       <groupId>com.github.jsqlparser</groupId>
       <artifactId>jsqlparser</artifactId>
       <version>1.4</version>
     </dependency>
-
     <dependency>
       <groupId>com.mapr.db</groupId>
       <artifactId>maprdb</artifactId>
       <version>6.1.0-mapr</version>
     </dependency>
-
     <dependency>
       <groupId>com.mapr.db</groupId>
       <artifactId>maprdb-java</artifactId>
       <version>6.1.0-mapr</version>
     </dependency>
-
     <dependency>
       <groupId>com.mapr.ojai</groupId>
       <artifactId>mapr-ojai-driver</artifactId>
       <version>6.1.0-mapr</version>
     </dependency>
-
     <dependency>
       <groupId>org.ojai</groupId>
       <artifactId>ojai</artifactId>
       <version>3.0-mapr-1808</version>
     </dependency>
-
     <dependency>
       <groupId>com.github.anicolaspp</groupId>
       <artifactId>ojai-testing_2.12</artifactId>
       <version>1.0.7</version>
     </dependency>
-
     <dependency>
       <groupId>com.github.anicolaspp</groupId>
       <artifactId>ojai-scala-generics_2.11</artifactId>
       <version>1.0.0</version>
     </dependency>
-
-
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
@@ -135,22 +167,20 @@
       <version>RELEASE</version>
       <scope>test</scope>
     </dependency>
-
-
   </dependencies>
 
 
   <build>
     <plugins>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>8</source>
-          <target>8</target>
-        </configuration>
-      </plugin>
+<!--      <plugin>-->
+<!--        <groupId>org.apache.maven.plugins</groupId>-->
+<!--        <artifactId>maven-compiler-plugin</artifactId>-->
+<!--        <configuration>-->
+<!--          <source>8</source>-->
+<!--          <target>8</target>-->
+<!--        </configuration>-->
+<!--      </plugin>-->
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
